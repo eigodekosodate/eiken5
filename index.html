@@ -990,6 +990,11 @@
 
         function showView(id) {
             stopAllSpeech();
+            // Clear hint text when switching views
+            const hintElement = document.getElementById('battle-hint');
+            if (hintElement) {
+                hintElement.textContent = '';
+            }
             // Hide all views first
             document.querySelectorAll('.transition-view').forEach(v => {
                 v.classList.add('hidden-view');
@@ -1426,6 +1431,11 @@
 
         function hideExplanation() {
             document.getElementById('explanation-overlay').classList.remove('active');
+            // Clear hint text when hiding explanation
+            const hintElement = document.getElementById('battle-hint');
+            if (hintElement) {
+                hintElement.textContent = '';
+            }
             if (currentQuest.type === 'order') resetOrder();
         }
 
