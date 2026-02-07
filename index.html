@@ -62,7 +62,7 @@
         /* View Container */
         .view-frame {
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
+            /* Removed backdrop-filter for better LINE/WebView compatibility */
             border: 1px solid var(--glass-border);
             border-radius: 2rem;
             flex-grow: 1;
@@ -433,6 +433,33 @@
             align-items: center;
             gap: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            /* Ensure pointer for stats click */
+        }
+
+        /* Stats Modal Premium */
+        .stats-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .stats-modal.active {
+            display: flex;
+        }
+
+        .stats-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 2.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -443,20 +470,36 @@
     <main class="app-shell">
         <!-- HUD -->
         <div class="user-hud">
-            <div class="hud-card">
+            <div class="hud-card" onclick="showStats()">
                 <span class="text-2xl">🏆</span>
                 <div>
-                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest">Global Progress</div>
-                    <div id="total-stats" class="text-sm font-black text-neon">CLEARED: 0 / 0 MONSTERS</div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Global Progress</div>
+                    <div id="total-stats" class="text-sm font-black text-indigo-600">CLEARED: 0 / 0 MONSTERS</div>
                 </div>
             </div>
-            <button onclick="showCollection()" class="hud-card premium-btn !p-4 !gap-3 hover:!bg-white/20">
+            <button onclick="showCollection()" class="hud-card premium-btn !p-4 !gap-3 hover:!bg-slate-50">
                 <span class="text-2xl">📖</span>
-                <span class="text-sm font-black uppercase tracking-tight">Open Encyclopedia</span>
+                <span class="text-sm font-black uppercase tracking-tight">Encyclopedia</span>
             </button>
         </div>
 
         <div class="view-frame" id="main-frame">
+            <!-- STATS MODAL -->
+            <div id="stats-modal" class="stats-modal">
+                <div class="stats-content">
+                    <div class="text-center mb-8">
+                        <div class="text-4xl mb-2">📊</div>
+                        <h2 class="text-2xl font-black italic">Adventure Stats</h2>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Your progress history</p>
+                    </div>
+                    <div id="stats-list" class="space-y-4 mb-8 max-h-80 overflow-y-auto pr-2">
+                        <!-- Stats per section here -->
+                    </div>
+                    <button onclick="closeStats()"
+                        class="w-full bg-slate-100 text-slate-800 p-5 rounded-3xl font-black text-lg active:scale-95 transition-all">CLOSE</button>
+                </div>
+            </div>
+
             <!-- EXPLANATION OVERLAY -->
             <div id="explanation-overlay" class="explanation-card flex flex-col items-center">
                 <div class="w-16 h-1.5 bg-slate-300 rounded-full mb-8"></div>
@@ -896,15 +939,32 @@
         let currentQList = [];
         let currentQIndex = 0;
         let currentSpeechId = 0; // Track active speech session
-        let selectedWords = [];
         let clearedIds = JSON.parse(localStorage.getItem('clearedMonsters') || '[]');
+        let monsterStats = JSON.parse(localStorage.getItem('monsterStats') || '{}');
+        let sectionStats = JSON.parse(localStorage.getItem('sectionStats') || '{}');
+
+        function saveMonsterStat(id, type) {
+            if (!monsterStats[id]) monsterStats[id] = { clears: 0, mistakes: 0 };
+            if (type === 'clear') monsterStats[id].clears++;
+            if (type === 'mistake') monsterStats[id].mistakes++;
+            localStorage.setItem('monsterStats', JSON.stringify(monsterStats));
+        }
+
+        function saveSectionStat(floor) {
+            const today = new Date().toLocaleDateString('ja-JP');
+            if (!sectionStats[floor]) sectionStats[floor] = { count: 0, lastDate: today };
+            sectionStats[floor].count++;
+            sectionStats[floor].lastDate = today;
+            localStorage.setItem('sectionStats', JSON.stringify(sectionStats));
+        }
 
         function saveProgress(id) {
             if (!clearedIds.includes(id)) {
                 clearedIds.push(id);
                 localStorage.setItem('clearedMonsters', JSON.stringify(clearedIds));
-                renderStats();
             }
+            saveMonsterStat(id, 'clear');
+            renderStats();
         }
 
         function renderStats() {
@@ -968,6 +1028,8 @@
                     const noStr = String(monsterGlobalIndex).padStart(3, '0');
                     card.className = `monster-card relative flex flex-col items-center justify-center ${isCleared ? '' : 'locked'}`;
 
+                    const stats = monsterStats[q.id] || { clears: 0, mistakes: 0 };
+
                     if (isCleared) {
                         card.onclick = () => renderReview(q.id);
                         card.innerHTML = `
@@ -975,7 +1037,11 @@
                             <div class="w-24 h-24 mb-4">
                                 <img src="https://robohash.org/${q.id}?set=set2&size=150x150" class="w-full h-full object-contain filter drop-shadow-xl">
                             </div>
-                            <div class="text-xs font-black text-slate-800">${q.name}</div>
+                            <div class="text-xs font-black text-slate-800 mb-1">${q.name}</div>
+                            <div class="flex gap-2 text-[8px] font-bold">
+                                <span class="text-blue-500">✨ ${stats.clears}</span>
+                                <span class="text-rose-400">❌ ${stats.mistakes}</span>
+                            </div>
                         `;
                     } else {
                         card.innerHTML = `
@@ -1156,19 +1222,23 @@
             choices.forEach((choice, i) => {
                 const btn = document.createElement('button');
                 btn.className = "ans-btn flex flex-col items-center justify-center min-h-[140px] shadow-2xl border-4";
+                btn.type = "button"; // Explicit button type
                 const labelLetter = String.fromCharCode(97 + i); // a, b, c
 
                 if (showOnlyLabels) {
-                    btn.innerHTML = `<span class="text-7xl font-black text-indigo-600 uppercase">${labelLetter}</span>`;
+                    btn.innerHTML = `<span class="text-7xl font-black text-indigo-600 uppercase pointer-events-none">${labelLetter}</span>`;
                 } else {
                     const text = labels ? labels[i] : choice;
                     btn.innerHTML = `
-                            <span class="text-sm font-black text-slate-400 uppercase tracking-widest mb-1 sm:mb-3">${labelLetter}</span>
-                            <span class="text-2xl sm:text-3xl font-black leading-tight text-slate-800 break-all">${text}</span>
+                            <span class="text-sm font-black text-slate-400 uppercase tracking-widest mb-1 sm:mb-3 pointer-events-none">${labelLetter}</span>
+                            <span class="text-2xl sm:text-3xl font-black leading-tight text-slate-800 break-all pointer-events-none">${text}</span>
                         `;
                 }
 
-                btn.onclick = () => checkAnswer(i === correctIndex);
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    checkAnswer(i === correctIndex);
+                };
                 grid.appendChild(btn);
             });
             ansArea.appendChild(grid);
@@ -1309,6 +1379,7 @@
                             loadQuestion();
                         } else {
                             hint.innerText = "⭐ STAGE CLEAR ⭐";
+                            saveSectionStat(currentQuest.label); // Track section clear
                             setTimeout(() => {
                                 showView('map');
                                 renderStats();
@@ -1317,6 +1388,7 @@
                     }, 400);
                 }, 800);
             } else {
+                saveMonsterStat(q.id, 'mistake'); // Track mistake
                 hint.innerText = "OH NO! LOOK AT THE HINT!";
                 hint.className = "mt-4 text-lg text-rose-400 font-bold drop-shadow";
                 document.getElementById('view-battle').classList.add('shake');
@@ -1389,6 +1461,38 @@
                 `;
                 floorList.appendChild(button);
             }
+        }
+
+        function showStats() {
+            const list = document.getElementById('stats-list');
+            list.innerHTML = '';
+
+            for (const floorNum in dungeonData) {
+                const floor = dungeonData[floorNum];
+                const stats = sectionStats[floor.label] || { count: 0, lastDate: '-' };
+
+                const item = document.createElement('div');
+                item.className = "p-4 bg-slate-50 rounded-2xl flex items-center justify-between border border-slate-100";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="text-xl">${floor.icon}</div>
+                        <div>
+                            <div class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">${floor.label}</div>
+                            <div class="text-xs font-bold text-slate-900">${floor.sub}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-black text-indigo-600">${stats.count} clears</div>
+                        <div class="text-[9px] font-bold text-slate-400">LAST: ${stats.lastDate}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            }
+            document.getElementById('stats-modal').classList.add('active');
+        }
+
+        function closeStats() {
+            document.getElementById('stats-modal').classList.remove('active');
         }
 
         // Initial map rendering
