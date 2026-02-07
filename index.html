@@ -386,32 +386,39 @@
             }
         }
 
-        /* Explanation Card Premium */
+        /* Explanation Card Premium - Centered Modal */
         .explanation-card {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            color: var(--text-main);
-            padding: 2.5rem;
-            border-radius: 3rem 3rem 0 0;
-            z-index: 2000;
-            transform: translateY(105%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 5000;
             display: none;
-            /* Hide with display none to be safe */
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
             pointer-events: none;
             touch-action: none;
         }
 
         .explanation-card.active {
             display: flex;
-            /* Show when active */
-            transform: translateY(0);
             pointer-events: auto;
             touch-action: manipulation;
+        }
+
+        .explanation-card>div {
+            background: #ffffff;
+            color: var(--text-main);
+            padding: 2.5rem;
+            border-radius: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Status Bar */
@@ -501,15 +508,17 @@
             </div>
 
             <!-- EXPLANATION OVERLAY -->
-            <div id="explanation-overlay" class="explanation-card flex flex-col items-center">
-                <div class="w-16 h-1.5 bg-slate-300 rounded-full mb-8"></div>
-                <div class="text-4xl font-black mb-4">💡 HINT DOCTOR</div>
-                <div id="exp-text" class="text-xl font-bold leading-relaxed mb-10 text-center max-w-lg">
-                    <!-- Explanation text here -->
+            <div id="explanation-overlay" class="explanation-card">
+                <div>
+                    <div class="w-16 h-1.5 bg-slate-300 rounded-full mb-8 mx-auto"></div>
+                    <div class="text-4xl font-black mb-4 text-center">💡 HINT DOCTOR</div>
+                    <div id="exp-text" class="text-xl font-bold leading-relaxed mb-10 text-center max-w-lg">
+                        <!-- Explanation text here -->
+                    </div>
+                    <button onclick="hideExplanation()"
+                        class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black text-2xl shadow-[0_10px_30px_rgba(79,70,229,0.4)] active:scale-95 transition-all">OK!
+                        NEXT STEP</button>
                 </div>
-                <button onclick="hideExplanation()"
-                    class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black text-2xl shadow-[0_10px_30px_rgba(79,70,229,0.4)] active:scale-95 transition-all">OK!
-                    NEXT STEP</button>
             </div>
 
             <!-- DUNGEON MAP -->
