@@ -30,19 +30,7 @@
             margin: 0;
             overflow-x: hidden;
             min-height: 100vh;
-        }
-
-        .app-shell {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: 100vh;
-            padding: 0 1.5rem 1.5rem 1.5rem;
-            /* Reduced padding */
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            z-index: 10;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .app-bg {
@@ -92,26 +80,6 @@
             display: flex;
             flex-direction: column;
             pointer-events: auto;
-        }
-
-        /* View Container */
-        .view-frame {
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 3rem;
-            flex-grow: 1;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .transition-view {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
         }
 
         .hidden-view {
@@ -402,19 +370,23 @@
             background: #ffffff;
             color: var(--text-main);
             padding: 2.5rem;
-            border-radius: 4rem 4rem 0 0;
-            z-index: 1000;
+            border-radius: 3rem 3rem 0 0;
+            z-index: 2000;
             transform: translateY(105%);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.3);
+            display: none;
+            /* Hide with display none to be safe */
             pointer-events: none;
-            /* Critical: ignore touches when hidden */
+            touch-action: none;
         }
 
         .explanation-card.active {
+            display: flex;
+            /* Show when active */
             transform: translateY(0);
             pointer-events: auto;
-            /* Enable interaction when active */
+            touch-action: manipulation;
         }
 
         /* Status Bar */
@@ -923,14 +895,17 @@
         }
 
         function showView(id) {
-            stopAllSpeech(); // Crucial: Stop speech when switching views
+            stopAllSpeech();
+            // Hide all views first
             document.querySelectorAll('.transition-view').forEach(v => {
                 v.classList.add('hidden-view');
-                v.style.position = 'absolute';
             });
+            // Show target
             const active = document.getElementById('view-' + id);
-            active.classList.remove('hidden-view');
-            active.style.position = 'relative';
+            if (active) {
+                active.classList.remove('hidden-view');
+                active.scrollTop = 0;
+            }
         }
 
         function showCollection() {
@@ -963,9 +938,10 @@
 
                 floor.questions.forEach(q => {
                     const isCleared = clearedIds.includes(q.id);
-                    const card = document.createElement('div');
+                    const card = document.createElement('button');
+                    card.type = 'button';
                     const noStr = String(monsterGlobalIndex).padStart(3, '0');
-                    card.className = `monster-card relative ${isCleared ? '' : 'locked'}`;
+                    card.className = `monster-card relative flex flex-col items-center justify-center ${isCleared ? '' : 'locked'}`;
 
                     if (isCleared) {
                         card.onclick = () => renderReview(q.id);
@@ -974,7 +950,7 @@
                             <div class="w-24 h-24 mb-4">
                                 <img src="https://robohash.org/${q.id}?set=set2&size=150x150" class="w-full h-full object-contain filter drop-shadow-xl">
                             </div>
-                            <div class="text-xs font-black">${q.name}</div>
+                            <div class="text-xs font-black text-slate-800">${q.name}</div>
                         `;
                     } else {
                         card.innerHTML = `
@@ -982,7 +958,7 @@
                             <div class="w-24 h-24 mb-4 grayscale opacity-20">
                                 <img src="https://robohash.org/${q.id}?set=set2&size=150x150" class="w-full h-full object-contain">
                             </div>
-                            <div class="text-[10px] font-black text-white/20">???</div>
+                            <div class="text-[10px] font-black text-slate-300 uppercase">???</div>
                         `;
                     }
                     grid.appendChild(card);
@@ -1358,25 +1334,26 @@
             for (const floorNum in dungeonData) {
                 const data = dungeonData[floorNum];
                 const button = document.createElement('button');
+                button.type = 'button'; // Explicit type
                 button.onclick = () => startQuest(parseInt(floorNum));
-                button.className = `premium-btn flex items-start gap-5 group w-full`;
+                button.className = `monster-card flex items-start gap-5 group w-full text-left`;
 
                 const floorCleared = data.questions.filter(q => clearedIds.includes(q.id)).length;
                 const percent = Math.floor((floorCleared / data.questions.length) * 100);
 
                 button.innerHTML = `
-                    <div class="w-16 h-16 rounded-3xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
+                    <div class="w-16 h-16 rounded-3xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
                         ${data.icon}
                     </div>
                     <div class="text-left flex-grow">
                         <div class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">${data.label}</div>
-                        <div class="font-black text-2xl tracking-tighter italic mb-4">${data.sub}</div>
+                        <div class="font-black text-2xl tracking-tighter italic mb-4 text-slate-800">${data.sub}</div>
                         
-                        <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                             <div class="h-full bg-primary" style="width: ${percent}%"></div>
                         </div>
                         <div class="flex justify-between mt-2">
-                             <div class="text-[10px] font-bold text-white/40">${floorCleared} / ${data.questions.length} PURIFIED</div>
+                             <div class="text-[10px] font-bold text-slate-400">${floorCleared} / ${data.questions.length} PURIFIED</div>
                              <div class="text-[10px] font-black text-primary">${percent}%</div>
                         </div>
                     </div>
