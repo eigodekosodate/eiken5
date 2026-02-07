@@ -1063,10 +1063,16 @@
             let foundQ = null;
             let globalNo = 0;
             let found = false;
+            let foundFloor = null;
             for (const f in dungeonData) {
                 for (const q of dungeonData[f].questions) {
                     globalNo++;
-                    if (q.id === qId) { foundQ = q; found = true; break; }
+                    if (q.id === qId) {
+                        foundQ = q;
+                        foundFloor = dungeonData[f];
+                        found = true;
+                        break;
+                    }
                 }
                 if (found) break;
             }
@@ -1076,35 +1082,99 @@
             const text = document.getElementById('exp-text');
             const noStr = String(globalNo).padStart(3, '0');
 
+            // Build question display based on type
+            let questionHtml = '';
+            let answerHtml = '';
+
+            if (foundFloor.type === 'order') {
+                questionHtml = `<div class="text-[10px] font-black text-slate-400 uppercase mb-1">日本語の設問</div>
+                                <div class="text-lg font-bold mb-2">${foundQ.q}</div>
+                                <div class="text-[9px] font-black text-slate-400 uppercase mb-1">バラバラの単語</div>
+                                <div class="flex flex-wrap gap-1">${foundQ.words.map(w => `<span class="bg-slate-100 px-2 py-0.5 rounded-md text-[10px] font-bold">${w}</span>`).join('')}</div>`;
+                answerHtml = foundQ.correct;
+            } else if (foundFloor.type.startsWith('listening')) {
+                const imgUrl = foundQ.img || `https://robohash.org/${foundQ.id}?set=set2&size=150x150`;
+                questionHtml = `
+                    <div class="flex items-start gap-4">
+                        <div class="w-16 h-16 bg-slate-50 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
+                            <img src="${imgUrl}" class="w-full h-full object-contain">
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase mb-2">リスニング問題</div>
+                            <button onclick="speakSpecific('${foundQ.id}')" class="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 active:scale-95 transition-all">
+                                🔊 音声をきく
+                            </button>
+                        </div>
+                    </div>
+                `;
+                answerHtml = foundQ.c[foundQ.a];
+            } else {
+                questionHtml = `<div class="text-[10px] font-black text-slate-400 uppercase mb-1">穴埋め問題</div>
+                                <div class="text-xl font-bold">${foundQ.q.replace(/&nbsp;/g, ' ')}</div>`;
+                answerHtml = foundQ.c[foundQ.a];
+            }
+
             text.innerHTML = `
-                <div class="mb-8 p-6 bg-white rounded-3xl border border-slate-200 text-slate-900 text-left relative overflow-hidden shadow-inner">
+                <div class="mb-6 p-6 bg-white rounded-3xl border border-slate-200 text-slate-900 text-left relative overflow-hidden shadow-inner w-full max-w-sm">
                     <div class="flex items-center mb-6">
-                        <div class="w-20 h-20 mr-4 bg-slate-50 rounded-2xl p-2">
+                        <div class="w-16 h-16 mr-4 bg-slate-50 rounded-2xl p-1 border border-slate-100">
                             <img src="https://robohash.org/${foundQ.id}?set=set2&size=150x150" class="w-full h-full object-contain">
                         </div>
                         <div>
-                            <div class="text-[10px] font-black text-indigo-500 tracking-widest uppercase mb-1">Monster No.${noStr}</div>
-                            <div class="text-2xl font-black italic tracking-tight">${foundQ.name}</div>
+                            <div class="text-[9px] font-black text-indigo-500 tracking-widest uppercase mb-0.5">Monster No.${noStr}</div>
+                            <div class="text-xl font-black italic tracking-tight">${foundQ.name}</div>
                         </div>
                     </div>
                     
                     <div class="space-y-4">
                         <div class="p-4 bg-slate-50 rounded-2xl">
-                             <div class="text-[9px] font-black text-slate-400 uppercase mb-1">The Question</div>
-                             <div class="text-xl font-bold">${foundQ.q.replace(/&nbsp;/g, ' ')}</div>
+                             ${questionHtml}
                         </div>
                         <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
                              <div class="text-[9px] font-black text-indigo-400 uppercase mb-1">Correct Answer</div>
-                             <div class="text-2xl font-black text-indigo-600">${foundQ.type === 'order' ? foundQ.correct : foundQ.c[foundQ.a]}</div>
+                             <div class="text-xl font-black text-indigo-600">${answerHtml}</div>
                         </div>
                     </div>
                 </div>
-                <div class="text-left text-lg font-bold px-4 leading-relaxed text-slate-600 italic">
+                <div class="text-left text-sm font-bold px-4 leading-relaxed text-slate-500 italic mb-4">
                     "${foundQ.exp}"
                 </div>
             `;
             overlay.classList.add('active');
         }
+
+        // Helper for specific audio playback in review
+        window.speakSpecific = function (qId) {
+            let foundQ = null;
+            for (const f in dungeonData) {
+                const q = dungeonData[f].questions.find(x => x.id === qId);
+                if (q) { foundQ = q; break; }
+            }
+            if (!foundQ) return;
+
+            stopAllSpeech();
+            const voices = window.speechSynthesis.getVoices();
+            const femaleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Google US English'))) || voices.find(v => v.lang.startsWith('en'));
+            const maleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Alex') || v.name.includes('David') || v.name.includes('Google UK English Male'))) || voices.find(v => v.lang.startsWith('en'));
+
+            const audioParts = Array.isArray(foundQ.audio) ? foundQ.audio : [{ v: 'f', t: foundQ.audio }];
+            let sequence = Promise.resolve();
+
+            audioParts.forEach(part => {
+                sequence = sequence.then(() => {
+                    return new Promise(resolve => {
+                        if (part.w) { setTimeout(resolve, part.w); return; }
+                        const msg = new SpeechSynthesisUtterance(part.t);
+                        msg.voice = part.v === 'm' ? maleVoice : femaleVoice;
+                        msg.lang = 'en-US';
+                        msg.rate = 0.8;
+                        msg.onend = resolve;
+                        msg.onerror = resolve;
+                        window.speechSynthesis.speak(msg);
+                    });
+                });
+            });
+        };
 
         function startQuest(floor) {
             currentQuest = dungeonData[floor];
@@ -1130,6 +1200,9 @@
 
             ansArea.innerHTML = '';
             hint.innerText = '';
+
+            // Close explanation overlay if it's still open from previous question
+            document.getElementById('explanation-overlay').classList.remove('active');
 
             // Find global No.
             let globalNo = 0;
