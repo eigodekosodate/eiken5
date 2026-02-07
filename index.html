@@ -129,12 +129,18 @@
             border-radius: 2rem;
             padding: 1.5rem;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            /* Horizontal layout for dungeon list */
             align-items: center;
             transition: all 0.1s;
             cursor: pointer;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            pointer-events: auto;
+            position: relative;
+            z-index: 30;
+            width: 100%;
         }
 
         .monster-card:active {
@@ -1334,27 +1340,31 @@
             for (const floorNum in dungeonData) {
                 const data = dungeonData[floorNum];
                 const button = document.createElement('button');
-                button.type = 'button'; // Explicit type
-                button.onclick = () => startQuest(parseInt(floorNum));
-                button.className = `monster-card flex items-start gap-5 group w-full text-left`;
+                button.type = 'button';
+                button.onclick = (e) => {
+                    e.preventDefault();
+                    startQuest(parseInt(floorNum));
+                };
+                // Ensure layout matches CSS flex-direction: row
+                button.className = `monster-card flex items-center gap-6 group w-full`;
 
                 const floorCleared = data.questions.filter(q => clearedIds.includes(q.id)).length;
                 const percent = Math.floor((floorCleared / data.questions.length) * 100);
 
                 button.innerHTML = `
-                    <div class="w-16 h-16 rounded-3xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
+                    <div class="w-20 h-20 rounded-3xl bg-primary/20 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
                         ${data.icon}
                     </div>
-                    <div class="text-left flex-grow">
-                        <div class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">${data.label}</div>
-                        <div class="font-black text-2xl tracking-tighter italic mb-4 text-slate-800">${data.sub}</div>
+                    <div class="flex-grow">
+                        <div class="text-xs font-black text-primary uppercase tracking-widest mb-1 underline decoration-primary/30 decoration-2 underline-offset-4">${data.label}</div>
+                        <div class="font-black text-3xl md:text-4xl tracking-tighter italic mb-4 text-slate-900 leading-tight">${data.sub}</div>
                         
-                        <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-2">
                             <div class="h-full bg-primary" style="width: ${percent}%"></div>
                         </div>
-                        <div class="flex justify-between mt-2">
-                             <div class="text-[10px] font-bold text-slate-400">${floorCleared} / ${data.questions.length} PURIFIED</div>
-                             <div class="text-[10px] font-black text-primary">${percent}%</div>
+                        <div class="flex justify-between items-center">
+                             <div class="text-[11px] font-bold text-slate-400 font-mono">${floorCleared} / ${data.questions.length} PURIFIED</div>
+                             <div class="text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">${percent}%</div>
                         </div>
                     </div>
                 `;
