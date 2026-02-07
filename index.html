@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英検5級 合格ダンジョン</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #6366f1;
+            --accent: #f59e0b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --glass-border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        body {
+            font-family: 'Outfit', 'M PLUS Rounded 1c', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 0 2rem 2rem 2rem;
+            /* Remove top padding */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* View Container */
+        .view-frame {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 3rem;
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transition-view {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hidden-view {
+            display: none !important;
+        }
+
+        /* Premium Buttons */
+        .premium-btn {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            color: var(--text-main);
+        }
+
+        .premium-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .premium-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Typography */
+        .text-neon {
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.5), 0 0 40px rgba(14, 165, 233, 0.2);
+        }
+
+        .text-gold {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        /* Monster Cards */
+        .monster-card {
+            background: #ffffff;
+            border: 2px solid #f1f5f9;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+
+        .monster-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.03);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        .monster-card.locked {
+            filter: grayscale(1);
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #f8fafc;
+        }
+
+        .monster-card .no-badge {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Battle View UI */
+        .battle-stage {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .monster-box {
+            width: 280px;
+            height: 280px;
+            position: relative;
+            z-index: 5;
+            animation: monsterFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes monsterFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1.0);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .monster-shadow {
+            width: 200px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            filter: blur(10px);
+            margin-top: -10px;
+            animation: shadowScale 6s ease-in-out infinite;
+        }
+
+        @keyframes shadowScale {
+
+            0%,
+            100% {
+                transform: scale(1.0);
+                opacity: 0.4;
+            }
+
+            50% {
+                transform: scale(0.8);
+                opacity: 0.2;
+            }
+        }
+
+        .battle-controls {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 2.5rem;
+            border-radius: 4rem 4rem 0 0;
+            box-shadow: 0 -10px 15px -3px rgb(0 0 0 / 0.05);
+        }
+
+        /* Answer Buttons */
+        .ans-btn {
+            background: #ffffff;
+            border: 2px solid #f1f5f9;
+            padding: 1.25rem;
+            border-radius: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            color: var(--text-main);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+
+        .ans-btn:hover {
+            background: #f0f9ff;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .ans-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .ans-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Ordering Chips (B3F) */
+        .word-chip {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            border-radius: 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            user-select: none;
+        }
+
+        .word-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            background: #f0f9ff;
+        }
+
+        .word-chip:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        #word-slots {
+            min-height: 80px;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 2rem;
+            margin-bottom: 2rem;
+            border: 2px dashed #e2e8f0;
+        }
+
+        .slot-word {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 800;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        /* Damage FX */
+        .damage-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border: 4px solid var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .hit-anim {
+            animation: hitRing 0.5s ease-out;
+        }
+
+        @keyframes hitRing {
+            0% {
+                width: 20%;
+                height: 20%;
+                opacity: 1;
+                border-width: 20px;
+            }
+
+            100% {
+                width: 150%;
+                height: 150%;
+                opacity: 0;
+                border-width: 2px;
+            }
+        }
+
+        /* Explanation Card Premium */
+        .explanation-card {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+            color: #1e293b;
+            padding: 2.5rem;
+            border-radius: 4rem 4rem 0 0;
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .explanation-card.active {
+            transform: translateY(0);
+        }
+
+        /* Status Bar */
+        .user-hud {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            /* Small top margin instead of large shell padding */
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .hud-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 1rem 1.5rem;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="adventure-canvas"></div>
+    <div class="mesh-gradient"></div>
+    <div class="floating-particles" id="circles"></div>
+
+    <main class="app-shell">
+        <!-- HUD -->
+        <div class="user-hud">
+            <div class="hud-card">
+                <span class="text-2xl">🏆</span>
+                <div>
+                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest">Global Progress</div>
+                    <div id="total-stats" class="text-sm font-black text-neon">CLEARED: 0 / 0 MONSTERS</div>
+                </div>
+            </div>
+            <button onclick="showCollection()" class="hud-card premium-btn !p-4 !gap-3 hover:!bg-white/20">
+                <span class="text-2xl">📖</span>
+                <span class="text-sm font-black uppercase tracking-tight">Open Encyclopedia</span>
+            </button>
+        </div>
+
+        <div class="view-frame" id="main-frame">
+            <!-- EXPLANATION OVERLAY -->
+            <div id="explanation-overlay" class="explanation-card flex flex-col items-center">
+                <div class="w-16 h-1.5 bg-slate-300 rounded-full mb-8"></div>
+                <div class="text-4xl font-black mb-4">💡 HINT DOCTOR</div>
+                <div id="exp-text" class="text-xl font-bold leading-relaxed mb-10 text-center max-w-lg">
+                    <!-- Explanation text here -->
+                </div>
+                <button onclick="hideExplanation()"
+                    class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black text-2xl shadow-[0_10px_30px_rgba(79,70,229,0.4)] active:scale-95 transition-all">OK!
+                    NEXT STEP</button>
+            </div>
+
+            <!-- DUNGEON MAP -->
+            <div id="view-map" class="transition-view p-12 overflow-y-auto">
+                <div class="mb-12">
+                    <div
+                        class="inline-block bg-primary/20 text-primary px-4 py-1.5 rounded-full font-black text-xs tracking-widest mb-4 border border-primary/30">
+                        LEVEL 5 ADVENTURE</div>
+                    <h1 class="text-6xl font-black italic tracking-tighter mb-4">Quest Map</h1>
+                    <p class="text-white/40 font-medium">Select a dungeon to start your English mastery journey.</p>
+                </div>
+
+                <div id="floor-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+                    <!-- Floors dynamically generated by JS -->
+                </div>
+            </div>
+
+            <!-- BATTLE/QUEST VIEW -->
+            <div id="view-battle" class="transition-view hidden-view">
+                <!-- Battle Header -->
+                <div class="flex justify-between items-center p-8 bg-black/20">
+                    <button onclick="showView('map')"
+                        class="premium-btn !p-3 bg-red-500/10 border-red-500/20 text-red-400 font-bold px-6">✕
+                        QUIT</button>
+                    <div class="text-center">
+                        <div id="quest-label" class="text-primary font-black italic text-xs tracking-widest mb-1">
+                            STATION 1</div>
+                        <div id="quest-progress" class="text-white/40 font-black text-xs">MONSTER 1 / 10</div>
+                    </div>
+                    <div class="w-24"></div> <!-- Spacer -->
+                </div>
+
+                <div class="battle-stage">
+                    <div id="damage-ring" class="damage-ring"></div>
+
+                    <div class="monster-box">
+                        <img id="monster-img" src="" class="monster-sprite" alt="Monster">
+                        <div id="damage-fx" class="hidden absolute inset-0 flex items-center justify-center">
+                            <div class="text-6xl font-black text-amber-500 animate-ping">HIT!</div>
+                        </div>
+                    </div>
+                    <div class="monster-shadow"></div>
+
+                    <div id="monster-title"
+                        class="mt-8 bg-white/10 px-6 py-2 rounded-2xl font-black text-sm text-white/80 border border-white/10">
+                        MONSTER NAME
+                    </div>
+
+                    <div id="battle-hint" class="h-12 mt-4 text-2xl text-yellow-300 font-black tracking-tight"></div>
+
+                    <!-- Question Content Area -->
+                    <div id="q-content" class="mt-8 text-3xl font-black text-center max-w-2xl leading-snug">
+                        <!-- Questions like ( ___ ) will be here -->
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="battle-controls">
+                    <div id="answer-area" class="w-full max-w-3xl mx-auto flex flex-col items-center gap-4">
+                        <!-- Answer buttons here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLLECTION VIEW -->
+            <div id="view-collection" class="transition-view hidden-view p-12">
+                <div class="flex justify-between items-center mb-12">
+                    <div>
+                        <h2 class="text-5xl font-black tracking-tighter italic">Encyclopedia</h2>
+                        <p class="text-white/40">The library of monsters you have purified.</p>
+                    </div>
+                    <button onclick="showView('map')" class="premium-btn !px-8 font-black">✕ BACK TO MAP</button>
+                </div>
+                <div id="collection-content" class="overflow-y-auto pr-4">
+                    <!-- Categories and Grids dynamically generated -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const dungeonData = {
+            1: {
+                label: "1. 単語の穴埋め (短文完成)",
+                sub: "魔法の穴埋め回廊",
+                type: 'fill', icon: '⚔️', questions: [
+                    { id: "v140", name: "グッドバイ", q: "I said ( &nbsp;&nbsp;&nbsp; ) to my friend.", c: ["goodbye", "red", "car", "apple"], a: 0, exp: "別れの挨拶は goodbye だね。" },
+                    // --- PEOPLE ---
+                    { id: "v201", name: "ファザール", q: "That man is my ( &nbsp;&nbsp;&nbsp; ). He's 40.", c: ["mother", "father", "sister", "baby"], a: 1, exp: "「お父さん」は father だよ。" },
+                    { id: "v202", name: "マザール", q: "That woman is my ( &nbsp;&nbsp;&nbsp; ). She's a nurse.", c: ["brother", "mother", "father", "son"], a: 1, exp: "「お母さん」は mother。nurse（看護師）も覚えよう。" },
+                    { id: "v203", name: "シスターン", q: "I have a younger ( &nbsp;&nbsp;&nbsp; ). She is five.", c: ["brother", "sister", "grandpa", "teacher"], a: 1, exp: "「妹（または姉）」は sister だね。" },
+                    { id: "v204", name: "ブラザン", q: "My ( &nbsp;&nbsp;&nbsp; ) is a boy. He's my brother.", c: ["father", "mother", "brother", "nurse"], a: 2, exp: "「兄弟（兄または弟）」は brother だよ。" },
+                    { id: "v205", name: "グランパ", q: "My father's father is my ( &nbsp;&nbsp;&nbsp; ).", c: ["grandfather", "grandmother", "child", "girl"], a: 0, exp: "「おじいさん」は grandfather。" },
+                    { id: "v206", name: "グランマ", q: "My mother's mother is my ( &nbsp;&nbsp;&nbsp; ).", c: ["grandmother", "grandfather", "boy", "man"], a: 0, exp: "「おばあさん」は grandmother。" },
+                    { id: "v207", name: "ドクターン", q: "The ( &nbsp;&nbsp;&nbsp; ) helps sick people at the hospital.", c: ["teacher", "student", "doctor", "cook"], a: 2, exp: "「医者」は doctor。" },
+                    { id: "v209", name: "ボーイ", q: "Look at that ( &nbsp;&nbsp;&nbsp; ). He's a cute boy.", c: ["girl", "boy", "man", "woman"], a: 1, exp: "「男の子」は boy だね。" },
+                    { id: "v210", name: "ガール", q: "Look at that ( &nbsp;&nbsp;&nbsp; ). She's a pretty girl.", c: ["boy", "girl", "dog", "cat"], a: 1, exp: "「女の子」は girl だよ。" },
+                    { id: "v211", name: "マン", q: "He's not a boy. He's a tall ( &nbsp;&nbsp;&nbsp; ).", c: ["woman", "man", "boy", "girl"], a: 1, exp: "「（大人の）男性」は man。" },
+                    { id: "v212", name: "ウーマン", q: "She's not a girl. She's a ( &nbsp;&nbsp;&nbsp; ).", c: ["man", "boy", "girl", "woman"], a: 3, exp: "「（大人の）女性」は woman。" },
+                    // --- BODY ---
+                    { id: "v221", name: "アイズ", q: "I use my ( &nbsp;&nbsp;&nbsp; ) to see things.", c: ["ears", "eyes", "nose", "mouth"], a: 1, exp: "見るために使うのは「目（eyes）」だね。" },
+                    { id: "v222", name: "イヤーズ", q: "I use my ( &nbsp;&nbsp;&nbsp; ) to listen to music.", c: ["ears", "eyes", "hands", "feet"], a: 0, exp: "聞くのは「耳（ears）」だね。" },
+                    { id: "v223", name: "ノーズ", q: "I smell flowers with my ( &nbsp;&nbsp;&nbsp; ).", c: ["eye", "ear", "nose", "mouth"], a: 2, exp: "においをかぐ「鼻」は nose だよ。" },
+                    { id: "v224", name: "マウス", q: "I eat food with my ( &nbsp;&nbsp;&nbsp; ).", c: ["eyes", "ears", "mouth", "nose"], a: 2, exp: "食べるのは「口（mouth）」だね。" },
+                    { id: "v225", name: "フェイス", q: "I wash my ( &nbsp;&nbsp;&nbsp; ) to be clean.", c: ["face", "pencil", "book", "desk"], a: 0, exp: "「顔」は face。" },
+                    { id: "v226", name: "ハンズ", q: "I have five fingers on each ( &nbsp;&nbsp;&nbsp; ).", c: ["foot", "hand", "face", "eye"], a: 1, exp: "指があるのは「手（hand）」だね。" },
+                    { id: "v227", name: "フィート", q: "I wear shoes on my ( &nbsp;&nbsp;&nbsp; ).", c: ["hands", "feet", "eyes", "ears"], a: 1, exp: "靴をはくのは「足（feet）」だね。" },
+                    { id: "v228", name: "レッグス", q: "I run with my long ( &nbsp;&nbsp;&nbsp; ).", c: ["arms", "legs", "eyes", "mouth"], a: 1, exp: "走る時に使う「脚」は legs。" },
+                    { id: "v229", name: "アームズ", q: "I hug you with my ( &nbsp;&nbsp;&nbsp; ).", c: ["arms", "legs", "eyes", "mouth"], a: 0, exp: "抱きしめる「腕」は arms。" },
+                    { id: "v230", name: "ヘア", q: "The ( &nbsp;&nbsp;&nbsp; ) on my head is black.", c: ["hair", "nose", "eye", "mouth"], a: 0, exp: "頭に生えている「髪」は hair。" },
+                    // --- DAYS ---
+                    { id: "v241", name: "マンデー", q: "Monday is the ( &nbsp;&nbsp;&nbsp; ) day of the week.", c: ["first", "last", "hot", "cold"], a: 0, exp: "「月曜日」は週の始まりだね。" },
+                    { id: "v242", name: "チューズデ", q: "Tuesday is before ( &nbsp;&nbsp;&nbsp; ).", c: ["monday", "wednesday", "friday", "sunday"], a: 1, exp: "火曜日の次は水曜日だね。" },
+                    { id: "v245", name: "フライデ", q: "Friday is before ( &nbsp;&nbsp;&nbsp; ).", c: ["monday", "tuesday", "saturday", "sunday"], a: 2, exp: "金曜日の次は土曜日だね。" },
+                    { id: "v247", name: "サンデ", q: "Sunday is a ( &nbsp;&nbsp;&nbsp; ).", c: ["red", "blue", "holiday", "happy"], a: 2, exp: "「日曜日」はお休み（holiday）だね。" },
+                    // --- NUMBERS ---
+                    { id: "v261", name: "イレブン", q: "Ten and one is ( &nbsp;&nbsp;&nbsp; ).", c: ["ten", "eleven", "twelve", "thirteen"], a: 1, exp: "10と1で「11（eleven）」！" },
+                    { id: "v262", name: "トゥエルブ", q: "Ten and two is ( &nbsp;&nbsp;&nbsp; ).", c: ["ten", "eleven", "twelve", "thirteen"], a: 2, exp: "10と2で「12（twelve）」！" },
+                    { id: "v263", name: "サーティー", q: "Ten and three is ( &nbsp;&nbsp;&nbsp; ).", c: ["thirteen", "fourteen", "fifteen", "sixteen"], a: 0, exp: "10と3で「13（thirteen）」！" },
+                    { id: "v264", name: "フィフティ", q: "Ten and five is ( &nbsp;&nbsp;&nbsp; ).", c: ["fifteen", "fifty", "five", "fifty-five"], a: 0, exp: "10と5で「15（fifteen）」！" },
+                    { id: "v265", name: "トゥエンテ", q: "Ten and ten is ( &nbsp;&nbsp;&nbsp; ).", c: ["twenty", "twelve", "two", "ten"], a: 0, exp: "10と10で「20（twenty）」！" },
+                    { id: "v266", name: "サーティー", q: "Twenty and ten is ( &nbsp;&nbsp;&nbsp; ).", c: ["thirty", "three", "thirteen", "forty"], a: 0, exp: "20と10で「30（thirty）」！" },
+                    { id: "v267", name: "ハンドレッ", q: "I have one ( &nbsp;&nbsp;&nbsp; ) yen.", c: ["ten", "hundred", "thousand", "yen"], a: 1, exp: "「100」は hundred だよ。" },
+                    { id: "v268", name: "サウザンド", q: "One ( &nbsp;&nbsp;&nbsp; ) meters is equal to one kilometer.", c: ["hundred", "thousand", "ten", "one"], a: 1, exp: "1kmは「1000」メートルだね。" },
+                    // --- TIME ---
+                    { id: "v281", name: "モーニング", q: "I wake up at six in the ( &nbsp;&nbsp;&nbsp; ).", c: ["morning", "happy", "blue", "book"], a: 0, exp: "「朝」は morning。" },
+                    { id: "v282", name: "アフタヌ", q: "1:00 PM is in the ( &nbsp;&nbsp;&nbsp; ).", c: ["morning", "afternoon", "evening", "night"], a: 1, exp: "「午後」は afternoon。" },
+                    { id: "v283", name: "イブニング", q: "5:00 PM is in the ( &nbsp;&nbsp;&nbsp; ).", c: ["morning", "afternoon", "evening", "pencil"], a: 2, exp: "「夕方・晩」は evening。" },
+                    { id: "v284", name: "ナイト", q: "It's 10:00 PM. Good ( &nbsp;&nbsp;&nbsp; ), Mom.", c: ["morning", "afternoon", "evening", "night"], a: 3, exp: "「夜」は night。" },
+                    { id: "v285", name: "トゥデイ", q: "( &nbsp;&nbsp;&nbsp; ) is very hot.", c: ["today", "tomorrow", "yesterday", "next day"], a: 0, exp: "「今日」は today。" },
+                    { id: "v286", name: "トゥモロー", q: "See you ( &nbsp;&nbsp;&nbsp; ).", c: ["today", "tomorrow", "yesterday", "next day"], a: 1, exp: "「明日」は tomorrow。" },
+                    { id: "v287", name: "イエスタデ", q: "It was rainy ( &nbsp;&nbsp;&nbsp; ).", c: ["today", "tomorrow", "yesterday", "now"], a: 2, exp: "「昨日」は yesterday。" },
+                    { id: "v288", name: "エブリデイ", q: "I play soccer ( &nbsp;&nbsp;&nbsp; ) day.", c: ["some", "one", "every", "all"], a: 2, exp: "「毎日」は every day だよ。" },
+                    { id: "v289", name: "ナウ", q: "I am hungry ( &nbsp;&nbsp;&nbsp; ).", c: ["now", "then", "soon", "before"], a: 0, exp: "「今」は now。" },
+                    { id: "v290", name: "スプリング", q: "Flowers bloom in the ( &nbsp;&nbsp;&nbsp; ).", c: ["spring", "winter", "hot", "cold"], a: 0, exp: "「春」は spring。" },
+                    { id: "v291", name: "サマー", q: "We go to the sea in the hot ( &nbsp;&nbsp;&nbsp; ).", c: ["spring", "summer", "fall", "winter"], a: 1, exp: "「夏」は summer。" },
+                    { id: "v292", name: "フォール", q: "Leaves change colors in the ( &nbsp;&nbsp;&nbsp; ).", c: ["spring", "summer", "fall", "winter"], a: 2, exp: "「秋」は fall。" },
+                    { id: "v293", name: "ウィンター", q: "It's snowy and cold in the ( &nbsp;&nbsp;&nbsp; ).", c: ["spring", "summer", "fall", "winter"], a: 3, exp: "「冬」は winter。" },
+                    // --- FOOD & DRINK ---
+                    { id: "v301", name: "ブレッド", q: "I eat ( &nbsp;&nbsp;&nbsp; ) and eggs for breakfast.", c: ["bread", "water", "blue", "pencil"], a: 0, exp: "朝食に食べる「パン」は bread だよ。" },
+                    { id: "v302", name: "ライス", q: "Japanese people eat ( &nbsp;&nbsp;&nbsp; ) every day.", c: ["sky", "rice", "salt", "red"], a: 1, exp: "「お米・ごはん」は rice。" },
+                    { id: "v303", name: "エッグ", q: "Chicken lay an ( &nbsp;&nbsp;&nbsp; ).", c: ["apple", "egg", "shoes", "pen"], a: 1, exp: "ニワトリが産む「卵」は egg。" },
+                    { id: "v304", name: "ウォーター", q: "I'm thirsty. Can I have some ( &nbsp;&nbsp;&nbsp; )?", c: ["water", "pencil", "happy", "book"], a: 0, exp: "「水」は water。" },
+                    { id: "v305", name: "ジュース", q: "I like orange ( &nbsp;&nbsp;&nbsp; ).", c: ["red", "juice", "pen", "desk"], a: 1, exp: "「ジュース」は juice。" },
+                    { id: "v306", name: "ミルク", q: "I get ( &nbsp;&nbsp;&nbsp; ) from cows.", c: ["milk", "bread", "egg", "rice"], a: 0, exp: "「牛乳」は milk。" },
+                    { id: "v307", name: "ティー", q: "My mother drinks hot ( &nbsp;&nbsp;&nbsp; ) with a cup.", c: ["juice", "tea", "cake", "shoe"], a: 1, exp: "「お茶」は tea。" },
+                    { id: "v308", name: "コーヒー", q: "This black drink is ( &nbsp;&nbsp;&nbsp; ). It is very bitter.", c: ["coffee", "jelly", "candy", "cookie"], a: 0, exp: "苦いブラック「コーヒー」だね。" },
+                    { id: "v309", name: "フィッシュ", q: "They swim in the sea. We eat ( &nbsp;&nbsp;&nbsp; ).", c: ["meat", "fish", "bread", "cake"], a: 1, exp: "「魚」は fish。" },
+                    { id: "v310", name: "ミート", q: "Beef and pork are ( &nbsp;&nbsp;&nbsp; ).", c: ["bread", "sugar", "meat", "salt"], a: 2, exp: "「肉」は meat。" },
+                    { id: "v311", name: "チキン", q: "Fried ( &nbsp;&nbsp;&nbsp; ) is my favorite food.", c: ["chicken", "blue", "sad", "pen"], a: 0, exp: "「鶏肉（チキン）」は chicken。" },
+                    { id: "v312", name: "ビーフ", q: "I eat ( &nbsp;&nbsp;&nbsp; ) steak.", c: ["pork", "beef", "sky", "happy"], a: 1, exp: "「牛肉」は beef。" },
+                    { id: "v313", name: "シュガー", q: "This cake has much ( &nbsp;&nbsp;&nbsp; ). It's sweet.", c: ["salt", "pepper", "sugar", "tea"], a: 2, exp: "甘い「砂糖」は sugar。" },
+                    { id: "v314", name: "ソルト", q: "Seawater is salty. It has ( &nbsp;&nbsp;&nbsp; ).", c: ["salt", "sugar", "juice", "milk"], a: 0, exp: "しょっぱい「塩」は salt。" },
+                    { id: "v315", name: "バナナ", q: "I eat a yellow ( &nbsp;&nbsp;&nbsp; ) every day.", c: ["banana", "grape", "cherry", "peach"], a: 0, exp: "「バナナ」は banana。" },
+                    { id: "v316", name: "グレイプ", q: "This ( &nbsp;&nbsp;&nbsp; ) is purple and sweet.", c: ["apple", "grape", "orange", "lemon"], a: 1, exp: "「ぶどう」は grape。" },
+                    { id: "v317", name: "ポテト", q: "I like ( &nbsp;&nbsp;&nbsp; ) salad.", c: ["pencil", "blue", "potato", "happy"], a: 2, exp: "「じゃがいも」は potato。" },
+                    { id: "v318", name: "ランチ", q: "It is 12:00. I go to the cafeteria to eat ( &nbsp;&nbsp;&nbsp; ).", c: ["dinner", "breakfast", "lunch", "snack"], a: 2, exp: "「昼食」は lunch。" },
+                    { id: "v319", name: "ディナー", q: "We have ( &nbsp;&nbsp;&nbsp; ) late at night.", c: ["snack", "breakfast", "lunch", "dinner"], a: 3, exp: "「夕食」は dinner。" },
+                    { id: "v320", name: "アイスクリ", q: "It's a cold sweet. I want some ( &nbsp;&nbsp;&nbsp; ).", c: ["ice cream", "pencil", "shoes", "happy"], a: 0, exp: "「アイスクリーム」は ice cream。" },
+                    // --- SCHOOL & STATIONERY ---
+                    { id: "v341", name: "ノートブッ", q: "Open your ( &nbsp;&nbsp;&nbsp; ).", c: ["bag", "notebook", "pencil", "desk"], a: 1, exp: "「ノート」は notebook だよ。" },
+                    { id: "v342", name: "イレイザー", q: "I have an ( &nbsp;&nbsp;&nbsp; ).", c: ["pencil", "eraser", "ruler", "pen"], a: 1, exp: "「消しゴム」は eraser。an がつくのに注意！" },
+                    { id: "v343", name: "ルーラー", q: "This ( &nbsp;&nbsp;&nbsp; ) is long.", c: ["ruler", "pen", "pencil", "book"], a: 0, exp: "「定規（じょうぎ）」は ruler。" },
+                    { id: "v344", name: "バッグ", q: "I carry many heavy books in my ( &nbsp;&nbsp;&nbsp; ).", c: ["pencil", "ruler", "bag", "eraser"], a: 2, exp: "たくさんの本を入れる「かばん」は bag。" },
+                    { id: "v345", name: "デスク", q: "Put the book on the ( &nbsp;&nbsp;&nbsp; ).", c: ["chair", "desk", "pencil", "eraser"], a: 1, exp: "「机」は desk。" },
+                    { id: "v346", name: "チェアー", q: "Sit on the ( &nbsp;&nbsp;&nbsp; ).", c: ["desk", "chair", "bag", "pen"], a: 1, exp: "「椅子」は chair。" },
+                    { id: "v347", name: "クラスルー", q: "We study English in the ( &nbsp;&nbsp;&nbsp; ).", c: ["classroom", "blue", "slow", "pencil"], a: 0, exp: "「教室」は classroom。" },
+                    { id: "v348", name: "ホームワー", q: "I do my ( &nbsp;&nbsp;&nbsp; ) at home after school.", c: ["pencil", "homework", "happy", "bag"], a: 1, exp: "「宿題」は homework。" },
+                    { id: "v349", name: "テスト", q: "Today is a math ( &nbsp;&nbsp;&nbsp; ). I need a pencil.", c: ["test", "school", "lunch", "bag"], a: 0, exp: "「テスト」は test。" },
+                    { id: "v350", name: "ジム", q: "We play basketball in the ( &nbsp;&nbsp;&nbsp; ).", c: ["gym", "pencil", "happy", "red"], a: 0, exp: "「体育館」は gym。" },
+                    { id: "v351", name: "プール", q: "Let's go to the ( &nbsp;&nbsp;&nbsp; ) to swim.", c: ["pool", "desk", "sad", "pen"], a: 0, exp: "「プール」は pool。" },
+                    { id: "v352", name: "ユニフォー", q: "I wear a school ( &nbsp;&nbsp;&nbsp; ) every day.", c: ["bag", "uniform", "cap", "hat"], a: 1, exp: "「制服」は uniform。" },
+                    // --- ANIMALS ---
+                    { id: "v371", name: "ラビット", q: "The ( &nbsp;&nbsp;&nbsp; ) has long ears and hops.", c: ["lion", "rabbit", "happy", "sky"], a: 1, exp: "耳が長い「うさぎ」は rabbit。" },
+                    { id: "v372", name: "ホース", q: "The ( &nbsp;&nbsp;&nbsp; ) runs fast on the grass. You can ride it.", c: ["horse", "red", "bad", "pen"], a: 0, exp: "速く走る「馬」は horse。" },
+                    { id: "v373", name: "カウ", q: "A ( &nbsp;&nbsp;&nbsp; ) gives us milk. It says 'moo'.", c: ["cat", "dog", "cow", "pig"], a: 2, exp: "牛乳をくれる「牛」は cow。" },
+                    { id: "v374", name: "ピッグ", q: "A ( &nbsp;&nbsp;&nbsp; ) lives on the farm and says 'oink'.", c: ["blue", "pig", "shoes", "lion"], a: 1, exp: "「豚」は pig。" },
+                    { id: "v375", name: "シープ", q: "A ( &nbsp;&nbsp;&nbsp; ) gives us wool. It is white.", c: ["lion", "sky", "sheep", "snake"], a: 2, exp: "白くてふわふわな「羊」は sheep。" },
+                    { id: "v376", name: "ライオン", q: "A ( &nbsp;&nbsp;&nbsp; ) is the king of the jungle. It roars.", c: ["cat", "dog", "lion", "rabbit"], a: 2, exp: "「ライオン」は lion。" },
+                    { id: "v377", name: "エレファン", q: "This ( &nbsp;&nbsp;&nbsp; ) is very big and has a long nose.", c: ["ant", "bee", "cat", "elephant"], a: 3, exp: "「象（ぞう）」は elephant。" },
+                    { id: "v378", name: "モンキー", q: "A ( &nbsp;&nbsp;&nbsp; ) climbs trees and likes bananas.", c: ["monkey", "red", "desk", "bird"], a: 0, exp: "「猿（さる）」は monkey。" },
+                    { id: "v379", name: "ベアー", q: "A ( &nbsp;&nbsp;&nbsp; ) is a big animal in the forest. It likes honey.", c: ["bear", "lion", "tiger", "monkey"], a: 0, exp: "「熊（くま）」は bear。" },
+                    { id: "v380", name: "スネーク", q: "That ( &nbsp;&nbsp;&nbsp; ) is long and has no legs.", c: ["snake", "bird", "rabbit", "horse"], a: 0, exp: "「蛇（へび）」は snake。" },
+                    { id: "v381", name: "アント", q: "Look at the small ( &nbsp;&nbsp;&nbsp; ) on the ground.", c: ["elephant", "bear", "ant", "lion"], a: 2, exp: "「蟻（あり）」は ant。" },
+                    { id: "v382", name: "ビー", q: "A ( &nbsp;&nbsp;&nbsp; ) makes honey and flies.", c: ["bird", "bee", "cat", "dog"], a: 1, exp: "「蜂（はち）」は bee。" },
+                    // --- NATURE ---
+                    { id: "v401", name: "フラワー", q: "Look at this red ( &nbsp;&nbsp;&nbsp; ). It smells like a rose.", c: ["tree", "flower", "pencil", "pen"], a: 1, exp: "「花」は flower。" },
+                    { id: "v402", name: "ツリー", q: "A big ( &nbsp;&nbsp;&nbsp; ) has many green leaves.", c: ["tree", "flower", "house", "car"], a: 0, exp: "「木」は tree。" },
+                    { id: "v403", name: "フォレスト", q: "Woods and ( &nbsp;&nbsp;&nbsp; ) have many trees.", c: ["sea", "city", "forest", "sky"], a: 2, exp: "「森」は forest。" },
+                    { id: "v404", name: "リバー", q: "The ( &nbsp;&nbsp;&nbsp; ) water is fresh. Fish swim in it.", c: ["river", "pencil", "sky", "sun"], a: 0, exp: "「川」は river。" },
+                    { id: "v405", name: "シー", q: "The ( &nbsp;&nbsp;&nbsp; ) is salty. I swim in the waves.", c: ["mountain", "forest", "sea", "sky"], a: 2, exp: "「海」は sea。" },
+                    { id: "v406", name: "マウンテン", q: "Mt. Fuji is the highest ( &nbsp;&nbsp;&nbsp; ) in Japan.", c: ["beach", "mountain", "river", "lake"], a: 1, exp: "「山」は mountain。" },
+                    { id: "v407", name: "スカイ", q: "The ( &nbsp;&nbsp;&nbsp; ) is high above us. It has clouds.", c: ["ground", "sea", "sky", "grass"], a: 2, exp: "「空」は sky。" },
+                    { id: "v408", name: "サン", q: "The ( &nbsp;&nbsp;&nbsp; ) is in the sky. It is very hot.", c: ["moon", "star", "sun", "cloud"], a: 2, exp: "「太陽」は sun。" },
+                    { id: "v409", name: "ムーン", q: "The ( &nbsp;&nbsp;&nbsp; ) is white in the night sky.", c: ["sun", "moon", "pencil", "cloud"], a: 1, exp: "「月」は moon。" },
+                    { id: "v410", name: "スター", q: "The ( &nbsp;&nbsp;&nbsp; ) is yellow and twinkles at night.", c: ["red", "blue", "star", "grass"], a: 2, exp: "夜空に光る「星」は star だね。" },
+                    // --- TOWN & PLACES ---
+                    { id: "v421", name: "ホスピタル", q: "The doctor and nurse work at the ( &nbsp;&nbsp;&nbsp; ).", c: ["park", "hospital", "red", "apple"], a: 1, exp: "「病院」は hospital。" },
+                    { id: "v422", name: "バンクン", q: "I go to the ( &nbsp;&nbsp;&nbsp; ) to get some money.", c: ["bank", "sad", "blue", "pencil"], a: 0, exp: "お金を出し入れする「銀行」は bank。" },
+                    { id: "v423", name: "ストアーン", q: "I buy toys at the toy ( &nbsp;&nbsp;&nbsp; ).", c: ["river", "forest", "store", "sky"], a: 2, exp: "「店」は store や shop と言うよ。" },
+                    { id: "v424", name: "レストラン", q: "Let's eat yummy pizza at a ( &nbsp;&nbsp;&nbsp; ).", c: ["farm", "zoo", "restaurant", "bank"], a: 2, exp: "「レストラン」は restaurant。" },
+                    { id: "v425", name: "キッチン", q: "My mother is cooking soup in the ( &nbsp;&nbsp;&nbsp; ).", c: ["garden", "blue", "kitchen", "sad"], a: 2, exp: "お料理をする「台所」は kitchen。" },
+                    { id: "v426", name: "ベッドルー", q: "I sleep on a bed in my ( &nbsp;&nbsp;&nbsp; ).", c: ["kitchen", "red", "bedroom", "happy"], a: 2, exp: "「寝室」は bedroom。" },
+                    { id: "v427", name: "ガーデン", q: "We have flowers and a big tree in our ( &nbsp;&nbsp;&nbsp; ).", c: ["garden", "pen", "blue", "shoes"], a: 0, exp: "「庭」は garden。" },
+                    { id: "v428", name: "シティン", q: "Tokyo is a very big ( &nbsp;&nbsp;&nbsp; ).", c: ["country", "city", "sky", "happy"], a: 1, exp: "「都市・街」は city。" },
+                    { id: "v429", name: "カントリー", q: "Japan is a beautiful ( &nbsp;&nbsp;&nbsp; ).", c: ["city", "country", "blue", "pen"], a: 1, exp: "「国」は country。" },
+                    { id: "v430", name: "ファーム", q: "The farmer has cows and horses on his ( &nbsp;&nbsp;&nbsp; ).", c: ["farm", "pencil", "sad", "sky"], a: 0, exp: "「農場」は farm。" },
+                    { id: "v431", name: "ズーーン", q: "We can see lions and elephants at the ( &nbsp;&nbsp;&nbsp; ).", c: ["bank", "zoo", "happy", "red"], a: 1, exp: "「動物園」は zoo。" },
+                    { id: "v432", name: "ミュージア", q: "We look at old paintings at the ( &nbsp;&nbsp;&nbsp; ).", c: ["museum", "blue", "pen", "sad"], a: 0, exp: "「博物館・美術館」は museum。" },
+                    // --- ACTIONS ---
+                    { id: "v451", name: "ライティン", q: "Use a pen and ( &nbsp;&nbsp;&nbsp; ) your name.", c: ["read", "speak", "write", "talk"], a: 2, exp: "「書く」は write。" },
+                    { id: "v452", name: "スピーカー", q: "I am from Canada. I ( &nbsp;&nbsp;&nbsp; ) English.", c: ["write", "speak", "blue", "listen"], a: 1, exp: "「（言葉を）話す」は speak。" },
+                    { id: "v453", name: "トーカー", q: "Ken and I always ( &nbsp;&nbsp;&nbsp; ) about soccer.", c: ["talk", "sing", "dance", "read"], a: 0, exp: "「（いっしょに）話す・おしゃべりする」は talk。" },
+                    { id: "v454", name: "リスナー", q: "I have a radio. I ( &nbsp;&nbsp;&nbsp; ) to the music.", c: ["hear", "listen", "sing", "dance"], a: 1, exp: "「（注意して）聞く」は listen (to 〜) だよ。" },
+                    { id: "v455", name: "ヒアラー", q: "Be quiet. I can ( &nbsp;&nbsp;&nbsp; ) a bird singing.", c: ["see", "hear", "look", "talk"], a: 1, exp: "「（自然に）聞こえる」は hear。" },
+                    { id: "v456", name: "シンガー", q: "I like music. Let's ( &nbsp;&nbsp;&nbsp; ) a song.", c: ["dance", "sing", "write", "read"], a: 1, exp: "「歌う」は sing。" },
+                    { id: "v457", name: "ダンサー", q: "We ( &nbsp;&nbsp;&nbsp; ) to the music. We move our bodies.", c: ["cold", "talk", "dance", "write"], a: 2, exp: "「踊る」は dance。" },
+                    { id: "v458", name: "ウォッシャ", q: "Your hands are dirty. ( &nbsp;&nbsp;&nbsp; ) them.", c: ["wash", "clean", "help", "open"], a: 0, exp: "「洗う」は wash。" },
+                    { id: "v459", name: "クリーナー", q: "Put away your toys and ( &nbsp;&nbsp;&nbsp; ) your room.", c: ["wash", "clean", "open", "close"], a: 1, exp: "「そうじする・きれいにする」は clean。" },
+                    { id: "v460", name: "ヘルパー", q: "I often ( &nbsp;&nbsp;&nbsp; ) my mother with cooking.", c: ["help", "clean", "wash", "cook"], a: 0, exp: "「たすける・手伝う」は help。" },
+                    { id: "v461", name: "オープナー", q: "It's hot. Please ( &nbsp;&nbsp;&nbsp; ) the window.", c: ["close", "open", "look", "see"], a: 1, exp: "「あける」は open。" },
+                    { id: "v462", name: "クローザー", q: "It is cold. ( &nbsp;&nbsp;&nbsp; ) the door, please.", c: ["open", "close", "read", "write"], a: 1, exp: "「しめる」は close。" },
+                    { id: "v463", name: "バイアー", q: "I have one hundred yen. I ( &nbsp;&nbsp;&nbsp; ) this pen.", c: ["buy", "sell", "give", "take"], a: 0, exp: "「買う」は buy。" },
+                    { id: "v464", name: "ギバーー", q: "It's a present for you. I ( &nbsp;&nbsp;&nbsp; ) it to you.", c: ["give", "take", "bring", "send"], a: 0, exp: "「あたえる・くれる」は give。" },
+                    { id: "v465", name: "テイカーー", q: "I ( &nbsp;&nbsp;&nbsp; ) a bus to school every morning.", c: ["give", "take", "go", "come"], a: 1, exp: "バスなどに「乗る」は take をつかうよ。" },
+                    // --- ADJECTIVES ---
+                    { id: "v481", name: "サッドン", q: "I lost my bag. I am very ( &nbsp;&nbsp;&nbsp; ).", c: ["happy", "sad", "good", "nice"], a: 1, exp: "バッグをなくして「かなしい」は sad。" },
+                    { id: "v482", name: "アングリッ", q: "My brother broke my phone. I am ( &nbsp;&nbsp;&nbsp; ).", c: ["happy", "nice", "angry", "cold"], a: 2, exp: "「おこっている」は angry。" },
+                    { id: "v483", name: "タイアード", q: "I played soccer for three hours. I am ( &nbsp;&nbsp;&nbsp; ).", c: ["hungry", "thirsty", "tired", "happy"], a: 2, exp: "「つかれている」は tired。" },
+                    { id: "v484", name: "ハングリー", q: "I didn't eat lunch. I am ( &nbsp;&nbsp;&nbsp; ).", c: ["thirsty", "hungry", "tired", "sad"], a: 1, exp: "「おなかがすいている」は hungry。" },
+                    { id: "v485", name: "サースティ", q: "I want to drink water. I am ( &nbsp;&nbsp;&nbsp; ).", c: ["hungry", "tired", "thirsty", "happy"], a: 2, exp: "「のどがかわいている」は thirsty。" },
+                    { id: "v486", name: "ホットン", q: "It's 35 degrees today. It is ( &nbsp;&nbsp;&nbsp; ).", c: ["cold", "hot", "big", "small"], a: 1, exp: "「あつい」は hot。" },
+                    { id: "v487", name: "ゴールドン", q: "It is snowing. It is ( &nbsp;&nbsp;&nbsp; ).", c: ["hot", "cold", "tall", "short"], a: 1, exp: "「さむい」は cold。" },
+                    { id: "v488", name: "ビッグン", q: "An elephant is a ( &nbsp;&nbsp;&nbsp; ) animal.", c: ["small", "short", "big", "little"], a: 2, exp: "「おおきい」は big。" },
+                    { id: "v489", name: "スモールン", q: "An ant is a very ( &nbsp;&nbsp;&nbsp; ) insect.", c: ["big", "long", "tall", "small"], a: 3, exp: "「ちいさい」は small。" },
+                    { id: "v490", name: "トールン", q: "He is 190 cm. He is very ( &nbsp;&nbsp;&nbsp; ).", c: ["short", "tall", "long", "big"], a: 1, exp: "「背がたかい」は tall。" },
+                    { id: "v491", name: "ショートン", q: "She cut her hair. Now it is ( &nbsp;&nbsp;&nbsp; ).", c: ["long", "short", "tall", "high"], a: 1, exp: "「みじかい」は short。" },
+                    { id: "v492", name: "ロングン", q: "A snake is a ( &nbsp;&nbsp;&nbsp; ) animal.", c: ["short", "long", "tall", "high"], a: 1, exp: "「ながい」は long。" },
+                    { id: "v493", name: "ニューーン", q: "I bought this bag today. It is ( &nbsp;&nbsp;&nbsp; ).", c: ["old", "new", "bad", "sad"], a: 1, exp: "「あたらしい」は new。" },
+                    { id: "v494", name: "オールドン", q: "This castle was built in 1600. It is ( &nbsp;&nbsp;&nbsp; ).", c: ["new", "good", "old", "nice"], a: 2, exp: "「ふるい」は old。" },
+                    { id: "v495", name: "グッドド", q: "You got 100 on the test. ( &nbsp;&nbsp;&nbsp; ) job!", c: ["bad", "sad", "good", "cold"], a: 2, exp: "「よい」は good。" },
+                    { id: "v496", name: "ビューティ", q: "Look at the sunset. It is ( &nbsp;&nbsp;&nbsp; ).", c: ["bad", "beautiful", "short", "hot"], a: 1, exp: "「美しい」は beautiful。" },
+                    { id: "v497", name: "キュートン", q: "The baby is very ( &nbsp;&nbsp;&nbsp; ).", c: ["cute", "high", "long", "tall"], a: 0, exp: "「かわいい」は cute。" },
+                    { id: "v498", name: "ビジーン", q: "I have many things to do today. I am very ( &nbsp;&nbsp;&nbsp; ).", c: ["free", "busy", "easy", "hard"], a: 1, exp: "「いそがしい」は busy。" },
+                    { id: "v499", name: "イージー", q: "1 + 1 is very ( &nbsp;&nbsp;&nbsp; ). Anyone can do it.", c: ["hard", "easy", "blue", "noisy"], a: 1, exp: "「かんたんな」は easy。" },
+                    { id: "v500", name: "ハードン", q: "Climbing a high mountain is ( &nbsp;&nbsp;&nbsp; ) work.", c: ["easy", "nice", "hard", "good"], a: 2, exp: "「むずかしい・きつい」は hard。" },
+                    // --- COLORS ---
+                    { id: "v511", name: "レッズ", q: "Apples and strawberries are ( &nbsp;&nbsp;&nbsp; ).", c: ["blue", "green", "red", "yellow"], a: 2, exp: "「赤」は red。" },
+                    { id: "v512", name: "ブルーズ", q: "The sky and the sea are ( &nbsp;&nbsp;&nbsp; ).", c: ["red", "blue", "black", "white"], a: 1, exp: "「青」は blue。" },
+                    { id: "v513", name: "グリーンズ", q: "Common grass and leaves are ( &nbsp;&nbsp;&nbsp; ).", c: ["green", "pink", "purple", "brown"], a: 0, exp: "「緑」は green。" },
+                    { id: "v514", name: "イエローズ", q: "Lemons and bananas are ( &nbsp;&nbsp;&nbsp; ).", c: ["black", "white", "yellow", "orange"], a: 2, exp: "「黄色」は yellow。" },
+                    { id: "v515", name: "ブラックン", q: "Night and coal are ( &nbsp;&nbsp;&nbsp; ).", c: ["white", "black", "red", "blue"], a: 1, exp: "「黒」は black。" },
+                    { id: "v516", name: "ホワイトン", q: "Milk and snow are ( &nbsp;&nbsp;&nbsp; ).", c: ["white", "black", "brown", "blue"], a: 0, exp: "「白」は white。" },
+                    { id: "v517", name: "ブラウンン", q: "Chocolate and wood are ( &nbsp;&nbsp;&nbsp; ).", c: ["pink", "brown", "orange", "purple"], a: 1, exp: "「茶色」は brown。" },
+                    { id: "v518", name: "ピンクン", q: "Pigs and cherry blossoms are ( &nbsp;&nbsp;&nbsp; ).", c: ["pink", "blue", "black", "green"], a: 0, exp: "「ピンク」は pink。" },
+                    // --- SPORTS ---
+                    { id: "v531", name: "ソッカー", q: "I ( &nbsp;&nbsp;&nbsp; ) soccer with my friends.", c: ["play", "swim", "piano", "book"], a: 0, exp: "「サッカーをする」は play soccer だよ。" },
+                    { id: "v532", name: "テニスン", q: "I use a racket to play ( &nbsp;&nbsp;&nbsp; ).", c: ["tennis", "baseball", "basketball", "run"], a: 0, exp: "ラケットを使う「テニス」は tennis。" },
+                    { id: "v533", name: "ベースボー", q: "I use a bat and a ball to play ( &nbsp;&nbsp;&nbsp; ).", c: ["baseball", "soccer", "tennis", "swim"], a: 0, exp: "バットを使う「野球」は baseball。" },
+                    { id: "v534", name: "バスケッ", q: "I jump and shoot a ball in ( &nbsp;&nbsp;&nbsp; ).", c: ["soccer", "baseball", "basketball", "tennis"], a: 2, exp: "「バスケットボール」は basketball。" },
+                    { id: "v535", name: "スイミング", q: "I like ( &nbsp;&nbsp;&nbsp; ) in the pool.", c: ["swimming", "run", "jump", "walk"], a: 0, exp: "プールで「泳ぐこと」は swimming。" },
+                    // --- HOBBIES & CULTURE ---
+                    { id: "v551", name: "ミュージッ", q: "I use my ears to listen to ( &nbsp;&nbsp;&nbsp; ).", c: ["music", "piano", "guitar", "violin"], a: 0, exp: "「音楽」は music。" },
+                    { id: "v552", name: "ピアノン", q: "I use my ten fingers to play the ( &nbsp;&nbsp;&nbsp; ).", c: ["piano", "soccer", "tennis", "baseball"], a: 0, exp: "「ピアノ」は piano。" },
+                    { id: "v553", name: "ギタラー", q: "I use six strings to play the ( &nbsp;&nbsp;&nbsp; ).", c: ["violin", "piano", "guitar", "flute"], a: 2, exp: "「ギター」は guitar。" },
+                    { id: "v554", name: "フォトロン", q: "I used my camera to take this ( &nbsp;&nbsp;&nbsp; ).", c: ["photo", "book", "pen", "bag"], a: 0, exp: "カメラで撮る「写真」は photo だよ。" },
+                    { id: "v555", name: "ムービーン", q: "Let's go to the cinema to watch a ( &nbsp;&nbsp;&nbsp; ).", c: ["movie", "book", "game", "music"], a: 0, exp: "「映画」は movie。" },
+                    // --- QUESTION WORDS ---
+                    { id: "v571", name: "ワットン", q: "A: ( &nbsp;&nbsp;&nbsp; ) is this? B: It's a pen.", c: ["Who", "What", "Where", "When"], a: 1, exp: "「何」ときくときは What だね。" },
+                    { id: "v572", name: "フーーン", q: "A: ( &nbsp;&nbsp;&nbsp; ) is that boy? B: He is Ken.", c: ["Who", "What", "Where", "When"], a: 0, exp: "「だれ」ときくときは Who。" },
+                    { id: "v573", name: "ウェアン", q: "A: ( &nbsp;&nbsp;&nbsp; ) is the station? B: Near the park.", c: ["Who", "What", "Where", "When"], a: 2, exp: "「どこ」ときくときは Where。" },
+                    { id: "v574", name: "ウェンン", q: "A: ( &nbsp;&nbsp;&nbsp; ) is your birthday? B: Tomorrow.", c: ["Who", "What", "Where", "When"], a: 3, exp: "「いつ」ときくときは When。" },
+                    { id: "v575", name: "ハウワン", q: "A: ( &nbsp;&nbsp;&nbsp; ) are you? B: I'm fine.", c: ["Who", "What", "Where", "How"], a: 3, exp: "「どう・いかに」ときくときは How。" },
+                    // --- PRONOUNS ---
+                    { id: "v581", name: "マイマイ", q: "This is ( &nbsp;&nbsp;&nbsp; ) book.", c: ["I", "my", "me", "mine"], a: 1, exp: "「わたしの〜」は my だよ。" },
+                    { id: "v582", name: "ユアユア", q: "What is ( &nbsp;&nbsp;&nbsp; ) name?", c: ["you", "your", "yours", "me"], a: 1, exp: "「あなたの〜」は your。" },
+                    { id: "v583", name: "ヒズヒズ", q: "That is ( &nbsp;&nbsp;&nbsp; ) car.", c: ["he", "his", "him", "he's"], a: 1, exp: "「彼の〜」は his。" },
+                    { id: "v584", name: "ハーハー", q: "She has ( &nbsp;&nbsp;&nbsp; ) bag.", c: ["she", "her", "hers", "his"], a: 1, exp: "「彼女の〜」は her。" },
+                    { id: "v585", name: "ゼアゼア", q: "This is ( &nbsp;&nbsp;&nbsp; ) house.", c: ["they", "their", "them", "theirs"], a: 1, exp: "「彼らの〜」は their。" },
+                    { id: "v586", name: "アウアウ", q: "It is ( &nbsp;&nbsp;&nbsp; ) school.", c: ["we", "our", "us", "ours"], a: 1, exp: "「わたしたちの〜」は our。" },
+                    // --- VERBS & OTHERS ---
+                    { id: "v601", name: "ビジット", q: "I ( &nbsp;&nbsp;&nbsp; ) my grandmother on Sundays.", c: ["visit", "stay", "live", "come"], a: 0, exp: "「たずねる・訪問する」は visit。" },
+                    { id: "v602", name: "エンジョイ", q: "We ( &nbsp;&nbsp;&nbsp; ) the party.", c: ["enjoy", "play", "sing", "dance"], a: 0, exp: "「たのしむ」は enjoy。" },
+                    { id: "v603", name: "ニードン", q: "I ( &nbsp;&nbsp;&nbsp; ) a pencil to write a letter.", c: ["was", "is", "need", "sky"], a: 2, exp: "書くために「必要だ」は need。" },
+                    { id: "v604", name: "ワンットン", q: "I ( &nbsp;&nbsp;&nbsp; ) to drink some water.", c: ["want", "was", "is", "blue"], a: 0, exp: "「〜したい、ほしい」は want (to 〜) だね。" },
+                    { id: "v605", name: "キャンノン", q: "I ( &nbsp;&nbsp;&nbsp; ) swim well.", c: ["am", "do", "can", "is"], a: 2, exp: "「〜できる」は can。" },
+                    { id: "v611", name: "ユージュア", q: "I ( &nbsp;&nbsp;&nbsp; ) get up at seven.", c: ["usually", "always", "sometimes", "often"], a: 0, exp: "「ふだんは・たいてい」は usually。" },
+                    { id: "v612", name: "オルウェイ", q: "He is ( &nbsp;&nbsp;&nbsp; ) happy.", c: ["always", "usually", "often", "sometimes"], a: 0, exp: "「いつも、常に」は always。" },
+                    { id: "v613", name: "サムタイム", q: "I ( &nbsp;&nbsp;&nbsp; ) play games.", c: ["sometimes", "always", "usually", "often"], a: 0, exp: "「ときどき」は sometimes。" },
+                    { id: "v614", name: "オフン", q: "She ( &nbsp;&nbsp;&nbsp; ) goes to the park.", c: ["often", "always", "sometimes", "usually"], a: 0, exp: "「よく、しばしば」は often。" },
+                    { id: "v621", name: "ウェルン", q: "You dance very ( &nbsp;&nbsp;&nbsp; ).", c: ["good", "well", "nice", "fine"], a: 1, exp: "「じょうずに」は well。よくつかう副詞だよ。" }
+                ]
+            },
+            2: {
+                label: "2. 会話文の穴埋め (対話文完成)",
+                sub: "友情のチャット洞窟",
+                type: 'chat', icon: '💬', questions: [
+                    { id: "c001", name: "ファインガ", q: "A: How are you?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["I'm ten.", "fine, thank you.", "yes, please.", "you're welcome."], a: 1, exp: "元気かどうかをきかれているよ。" },
+                    { id: "c007", name: "タイムル", q: "A: What time is it?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["in the morning.", "it's sunny.", "it's 8 o'clock.", "at school."], a: 2, exp: "時間をきかれたら It's 〜 でこたえおう。" },
+                    { id: "c008", name: "オールドン", q: "A: How old are you?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["I'm ten.", "I'm fine.", "it's mine.", "yes, I am."], a: 0, exp: "年齢（ねんれい）をきかれたら I'm (数字). とこたえるよ。" },
+                    { id: "c101", name: "バースデー", q: "A: Happy birthday!<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["you, too.", "thank you.", "fine.", "I'm sorry."], a: 1, exp: "お祝いを言われたら「ありがとう」だね。" },
+                    { id: "c102", name: "ペンバロ", q: "A: Can I borrow your pen?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["sure.", "yes, I am.", "no, it isn't.", "thank you."], a: 0, exp: "「借りてもいい？」には Sure.（いいよ）など。" },
+                    { id: "c103", name: "ランチタイム", q: "A: Let's have lunch.<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["yes, it is.", "good idea.", "fine.", "you're welcome."], a: 1, exp: "「お昼にしよう」への賛成は Good idea. だよ。" },
+                    { id: "c104", name: "ウェアラビ", q: "A: Where is my cap?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["by bus.", "on sunday.", "on the desk.", "blue."], a: 2, exp: "場所をきかれているから場所を答えよう。" },
+                    { id: "c105", name: "ウェルカムン", q: "A: Thank you for your help.<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["you're welcome.", "no, thank you.", "yes, please.", "sure."], a: 0, exp: "「手伝ってくれてありがとう」へのお返し。" },
+                    { id: "c106", name: "タイムイズ", q: "A: What time is it?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["it's ten o'clock.", "it's sunny.", "by train.", "yes, it is."], a: 0, exp: "時間をこたえよう。" },
+                    { id: "c107", name: "ハローニ", q: "A: Hello, I'm Mike.<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["good night.", "hi, I'm Ken.", "see you.", "thank you."], a: 1, exp: "挨拶には挨拶で返そう。" },
+                    { id: "c108", name: "ナイスミー", q: "A: Nice to meet you.<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["nice to meet you, too.", "I'm sorry.", "it's okay.", "here you are."], a: 0, exp: "「はじめまして」には too をつけて返そう。" },
+                    { id: "c109", name: "ウェラユー", q: "A: Where are you from?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["I'm from Japan.", "I'm ten.", "it's three.", "by bus."], a: 0, exp: "出身（しゅっしん）をきかているよ。" },
+                    { id: "c110", name: "フーズザッ", q: "A: Who is that girl?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["She is my sister.", "He is my brother.", "It is a dog.", "By taxi."], a: 0, exp: "「あの女の子はだれ？」ときかれているよ。" },
+                    { id: "c111", name: "ホワットカラ", q: "A: What color do you like?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["I like red.", "I like apples.", "It is big.", "Small."], a: 0, exp: "「何色が好き？」ときかれているよ。" },
+                    { id: "c112", name: "サンデーニ", q: "A: What day is it today?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["It's Sunday.", "It's sunny.", "It's June.", "It's five."], a: 0, exp: "「今日は何曜日？」ときかれているよ。" },
+                    { id: "c113", name: "ハゥメニー", q: "A: How many pens do you have?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["I have three.", "I have some.", "They are pens.", "Yes, I do."], a: 0, exp: "「ペンを何本持ってる？」と数をきかれているよ。" },
+                    { id: "c114", name: "ドゥーユー", q: "A: Do you play tennis?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["No, I don't.", "Yes, I am.", "No, it isn't.", "Tennis is fun."], a: 0, exp: "Do you 〜? には I do / don't で答えよう。" },
+                    { id: "c115", name: "ホワッデシ", q: "A: What is she doing?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["She is cooking.", "She is a doctor.", "She is tall.", "She is my friend."], a: 0, exp: "「彼女は何をしてるの？」と動作（どうさ）をきいているよ。" },
+                    { id: "c116", name: "フーズディ", q: "A: Whose bag is this?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["It's mine.", "It's red.", "It's big.", "It's a bag."], a: 0, exp: "「これはだれのバッグ？」と持ち主をきいているよ。" },
+                    { id: "c117", name: "ドゥーユー", q: "A: Do you want some water?<br>B: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )", c: ["Yes, please.", "Yes, I am.", "No, it is.", "Red."], a: 0, exp: "「水がほしい？」への丁寧な返答だよ。" }
+                ]
+            },
+            3: {
+                label: "3. 語句の並べ替え (日本文一致)",
+                sub: "バラバラ石板のパズル",
+                type: 'order', icon: '💎', questions: [
+                    { id: "o001", name: "アフレースク", q: "放課後サッカーをします。", words: ["i", "soccer", "play", "after school"], correct: "i play soccer after school", exp: "主語、動詞、目的語の順だよ！" },
+                    { id: "o005", name: "リスンヌ", q: "音楽を聞くのが好きです。", words: ["i", "to music", "like", "listening"], correct: "i like listening to music", exp: "like 〜ing で「〜するのが好き」だよ。" },
+                    { id: "o006", name: "テイクア", q: "写真を撮りましょう。", words: ["take", "a picture", "let's"], correct: "let's take a picture", exp: "let's 〜 で「〜しましょう」のさそい文だよ！" },
+                    { id: "o007", name: "ルックア", q: "あの鳥を見て！", words: ["at", "look", "that bird"], correct: "look at that bird", exp: "look at 〜 で「〜を見て」という命令文だよ。" },
+                    { id: "o101", name: "アップリー", q: "早く起きます。", words: ["get up", "i", "early"], correct: "i get up early", exp: "get up は「起きる」という熟語だよ。" },
+                    { id: "o111", name: "ゴーホーム", q: "家に帰らなければなりません。", words: ["must", "i", "go home"], correct: "i must go home", exp: "must 〜 で「〜しなければならない」だよ。" },
+                    { id: "o112", name: "ヘルプユ", q: "お手伝いしましょうか？", words: ["help you", "i", "shall"], correct: "shall i help you", exp: "shall i 〜? は「〜しましょうか」という丁寧な誘いだね。" },
+                    { id: "o113", name: "グッドアト", q: "勉強が得意です。", words: ["am", "i", "at studying", "good"], correct: "i am good at studying", exp: "be good at 〜 で「〜が得意」という重要熟語だよ！" },
+                    { id: "o114", name: "ウォークイ", q: "公園を散歩します。", words: ["the park", "i", "walk in"], correct: "i walk in the park", exp: "walk in 〜 で「〜を歩く・散歩する」だね。" },
+                    { id: "o115", name: "トークア", q: "英語で話しましょう。", words: ["english", "in", "let's talk"], correct: "let's talk in english", exp: "talk in (言辞) で「〜語で話す」だよ。" },
+                    { id: "o116", name: "カムフロ", q: "日本出身です。", words: ["i", "japan", "come from"], correct: "i come from japan", exp: "come from 〜 で「〜の出身」だね。" },
+                    { id: "o117", name: "ターンオ", q: "テレビを消してください。", words: ["the TV", "off", "turn", "please"], correct: "turn off the TV please", exp: "turn off 〜 で「〜を消す」だよ。" },
+                    { id: "o118", name: "ゴーオン", q: "ピクニックに行きます。", words: ["go on", "i", "a picnic"], correct: "i go on a picnic", exp: "go on a picnic で「ピクニックに行く」だよ。" },
+                    { id: "o119", name: "ライトア", q: "手紙を書きます。", words: ["a letter", "i", "write"], correct: "i write a letter", exp: "write a letter で「手紙を書く」だね。" },
+                    { id: "o120", name: "プットオ", q: "コートを着なさい。", words: ["your coat", "on", "put"], correct: "put on your coat", exp: "put on 〜 で「〜を着る」という基本熟語だよ！" },
+                    { id: "o121", name: "ウォッチテ", q: "毎日テレビを見ます。", words: ["watch TV", "i", "every day"], correct: "i watch TV every day", exp: "「毎日〜する」は文の最後に every day をつけよう。" },
+                    { id: "o122", name: "リブイン", q: "東京に住んでいます。", words: ["live in", "i", "tokyo"], correct: "i live in tokyo", exp: "live in (場所) で「〜に住んでいる」だよ。" },
+                    { id: "o123", name: "プレイバ", q: "バスケットボールをしましょう。", words: ["basketball", "play", "let's"], correct: "let's play basketball", exp: "let's のあとは動詞（play）がくるよ。" },
+                    { id: "o124", name: "ウォンツゥ", q: "水がほしいです。", words: ["some water", "i", "want"], correct: "i want some water", exp: "「〜がほしい」は i want 〜 だね。" },
+                    { id: "o125", name: "ライカーン", q: "テニスが好きではありません。", words: ["i", "like", "tennis", "don't"], correct: "i don't like tennis", exp: "「〜が好きではない」は don't like を使おう。" }
+                ]
+            },
+            4: {
+                label: "4. 適切な応答",
+                sub: "イラストときこえる英語",
+                type: 'listening_ans', icon: '🎧', questions: [
+                    { id: "l101", name: "サンキュモン", audio: [{ v: 'm', t: "Thank you for the present." }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "No, thank you." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "You're welcome." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "It's cold." }], c: ["a", "b", "c"], a: 1, exp: "「ありがとう」への返事は You're welcome. だね。", img: "https://images.unsplash.com/photo-1549465220-1d8c9d9c6703?w=400" },
+                    { id: "l105", name: "ハングリン", audio: [{ v: 'm', t: "Are you hungry?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Yes, I am." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "No, it isn't." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "Yes, please." }], c: ["a", "b", "c"], a: 0, exp: "Are you 〜? ときかれたら I am でこたえよう。", img: "https://images.unsplash.com/photo-1536304919246-de07188147be?w=400" },
+                    { id: "l106", name: "カラーリン", audio: [{ v: 'm', t: "What color do you like?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's small." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "No, thank you." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "I like blue." }], c: ["a", "b", "c"], a: 2, exp: "好きな色を答えているのは blue だね。", img: "https://images.unsplash.com/photo-1502691876148-a84978e59af8?w=400" },
+                    { id: "l107", name: "タイムモン", audio: [{ v: 'm', t: "What time is it now?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's seven." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "It's big." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "It's Sunday." }], c: ["a", "b", "c"], a: 0, exp: "時間をきかれたので It's seven.（7時です）と答えよう。", img: "https://images.unsplash.com/photo-1508962914676-134849a727f0?w=400" },
+                    { id: "l108", name: "ウェザリン", audio: [{ v: 'm', t: "How is the weather today?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's sunny." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "I'm ten." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "Yes, he is." }], c: ["a", "b", "c"], a: 0, exp: "天気をきかれたら It's sunny.（晴れ）のように答えるよ。", img: "https://images.unsplash.com/photo-1514632595863-60871997c943?w=400" },
+                    { id: "l109", name: "フーズボーン", audio: [{ v: 'm', t: "Whose bag is this?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's new." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "It's mine." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "No, she isn't." }], c: ["a", "b", "c"], a: 1, exp: "「誰の？」ときかれたので It's mine.（私のだよ）と答えよう。", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400" },
+                    { id: "l110", name: "モルモン", audio: [{ v: 'm', t: "Good morning." }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Good morning." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "Good afternoon." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "Good night." }], c: ["a", "b", "c"], a: 0, exp: "朝の挨拶には Good morning. で返そう。", img: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=400" },
+                    { id: "l111", name: "キャニュリン", audio: [{ v: 'm', t: "Can you swim?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Yes, I do." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "Yes, I can." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "No, a dog." }], c: ["a", "b", "c"], a: 1, exp: "Can you 〜? ときかれたら I can で答えよう。", img: "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400" },
+                    { id: "l112", name: "ウェリン", audio: [{ v: 'm', t: "Where is the post office?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's over there." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "Yes, it is." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "I'm sorry." }], c: ["a", "b", "c"], a: 0, exp: "場所をきかれたので It's over there.（あそこだよ）と答えよう。", img: "https://images.unsplash.com/photo-1501532393035-796590bc661a?w=400" },
+                    { id: "l113", name: "ドュリン", audio: [{ v: 'm', t: "Do you have a pen?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Yes, please." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "Yes, I do." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "No, thank you." }], c: ["a", "b", "c"], a: 1, exp: "Do you 〜? ときかれたら I do で答えよう。", img: "https://images.unsplash.com/photo-1585336139118-b31b74208aee?w=400" },
+                    { id: "l114", name: "バースリン", audio: [{ v: 'm', t: "When is your birthday?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's May fifth." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "I'm from Japan." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "No, I'm not." }], c: ["a", "b", "c"], a: 0, exp: "いつかを聞かれたので日付（May fifth）を答えよう。", img: "https://images.unsplash.com/photo-1530103862676-fa3925143003?w=400" },
+                    { id: "l115", name: "アイスリン", audio: [{ v: 'm', t: "Would you like some ice cream?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Yes, please." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "I like dogs." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "You're welcome." }], c: ["a", "b", "c"], a: 0, exp: "勧められたときは Yes, please.（お願いします）と言おう。", img: "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=400" },
+                    { id: "l116", name: "ハウリン", audio: [{ v: 'm', t: "How do you go to school?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "I go by bus." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "Yes, I go." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "It's fine." }], c: ["a", "b", "c"], a: 0, exp: "手段をきかれたら by bus.（バスで）のように答えるよ。", img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400" },
+                    { id: "l117", name: "ホワッリン", audio: [{ v: 'm', t: "What are you doing?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "I'm reading a book." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "He is tall." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "No, I don't." }], c: ["a", "b", "c"], a: 0, exp: "何をしているかきかれたので、動作（reading）を答えよう。", img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+                    { id: "l118", name: "フーン", audio: [{ v: 'm', t: "Who is that girl?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "She is my sister." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "It is a desk." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "He is my father." }], c: ["a", "b", "c"], a: 0, exp: "「あの女の子は？」ときかれたので She（彼女は）で答えよう。", img: "https://images.unsplash.com/photo-1545696968-1a5245650b36?w=400" },
+                    { id: "l119", name: "ウィッリン", audio: [{ v: 'm', t: "Which cup is yours?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Yes, this is." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "The red one." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "By train." }], c: ["a", "b", "c"], a: 1, exp: "どのカップかきかれたので The red one.（赤い方だよ）と答えよう。", img: "https://images.unsplash.com/photo-1517256011271-103ad7491bb2?w=400" },
+                    { id: "l120", name: "メイリン", audio: [{ v: 'm', t: "May I help you?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Yes, please." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "I'm ten." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "No, thank you." }], c: ["a", "b", "c"], a: 0, exp: "助けを申し出られたら Yes, please. と答えよう。", img: "https://images.unsplash.com/photo-1521791136064-7986c2923216?w=400" },
+                    { id: "l121", name: "バイリン", audio: [{ v: 'm', t: "See you later." }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Nice to meet you." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "See you." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "You're welcome." }], c: ["a", "b", "c"], a: 1, exp: "別れの挨拶には See you. で返そう。", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400" },
+                    { id: "l122", name: "サンクスン", audio: [{ v: 'm', t: "Here you are." }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "Thank you." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "I'm sorry." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "Yes, it is." }], c: ["a", "b", "c"], a: 0, exp: "物をもらったときは Thank you. と言おう。", img: "https://images.unsplash.com/photo-1549465220-1d8c9d9c6703?w=400" },
+                    { id: "l123", name: "ハゥモッチュ", audio: [{ v: 'm', t: "How much is this?" }, { v: 'f', t: "a." }, { w: 400 }, { v: 'f', t: "It's five dollars." }, { v: 'f', t: "b." }, { w: 400 }, { v: 'f', t: "It's small." }, { v: 'f', t: "c." }, { w: 400 }, { v: 'f', t: "It's Monday." }], c: ["a", "b", "c"], a: 0, exp: "値段をきかれたので金額を答えよう。", img: "https://images.unsplash.com/photo-1554224155-169641357599?w=400" }
+                ]
+            },
+            5: {
+                label: "5. 会話の質問",
+                sub: "会話をきいて答えよう",
+                type: 'listening_q', icon: '👂', questions: [
+                    { id: "l201", name: "アップリン", audio: [{ v: 'm', t: "Do you like apples?" }, { v: 'f', t: "Yes, I do. They are sweet." }, { w: 800 }, { v: 'f', t: "Question: Does the woman like apples?" }], c: ["Yes, she does.", "No, she doesn't.", "She likes oranges.", "She is ten."], a: 0, exp: "女性は Yes, I do. と言っていたね。" },
+                    { id: "l203", name: "ドッギーン", audio: [{ v: 'f', t: "Look! What is that?" }, { v: 'm', t: "It is a big white dog." }, { w: 800 }, { v: 'f', t: "Question: What color is the dog?" }], c: ["It is black.", "It is white.", "It is red.", "It is big."], a: 1, exp: "white dog と言っていたね。" },
+                    { id: "l204", name: "ショウモン", audio: [{ v: 'm', t: "Can I use your pen?" }, { v: 'f', t: "Sure. Here you are." }, { w: 800 }, { v: 'f', t: "Question: What does the man want?" }], c: ["A pen.", "A pencil.", "A bag.", "A book."], a: 0, exp: "男性は pen を使いたいと言っていたね。" },
+                    { id: "l205", name: "クッキン", audio: [{ v: 'f', t: "Do you want some cookies?" }, { v: 'm', t: "Yes, please. I'm hungry." }, { w: 800 }, { v: 'f', t: "Question: What is the man doing?" }], c: ["Reading.", "Eating.", "Sleeping.", "He is hungry."], a: 3, exp: "男性は hungry（お腹が空いている）と言っていたね。" },
+                    { id: "l206", name: "ピアノン", audio: [{ v: 'm', t: "Do you play the piano every day?" }, { v: 'f', t: "No, I play it on Sundays." }, { w: 800 }, { v: 'f', t: "Question: When does the woman play the piano?" }], c: ["Every day.", "On Mondays.", "On Sundays.", "At school."], a: 2, exp: "女性は on Sundays に弾くと言っていたね。" },
+                    { id: "l207", name: "ホムモン", audio: [{ v: 'f', t: "When do you go home?" }, { v: 'm', t: "I go home at four." }, { w: 800 }, { v: 'f', t: "Question: What time does the boy go home?" }], c: ["At three.", "At four.", "At five.", "At school."], a: 1, exp: "男の子は at four（4時）に帰ると言っていたね。" },
+                    { id: "l208", name: "ブラザン", audio: [{ v: 'm', t: "Is that your brother?" }, { v: 'f', t: "No, he is my friend, Tom." }, { w: 800 }, { v: 'f', t: "Question: Who is the boy?" }], c: ["Her brother.", "Her friend.", "Her father.", "Tom's brother."], a: 1, exp: "彼は my friend だと言っていたね。" },
+                    { id: "l209", name: "スポーツモン", audio: [{ v: 'f', t: "What sport do you like?" }, { v: 'm', t: "I like soccer. I play it with my brother." }, { w: 800 }, { v: 'f', t: "Question: What does the boy like?" }], c: ["Baseball.", "Tennis.", "Soccer.", "Basketball."], a: 2, exp: "男の子は soccer が好きだと言っていたね。" },
+                    { id: "l210", name: "ランチモン", audio: [{ v: 'm', t: "Let's have lunch." }, { v: 'f', t: "Good idea. I'm hungry." }, { w: 800 }, { v: 'f', t: "Question: What are they going to do?" }], c: ["Play soccer.", "Have lunch.", "Go home.", "Study English."], a: 1, exp: "Have lunch（お昼を食べよう）と言っていたね。" },
+                    { id: "l211", name: "ライブラリン", audio: [{ v: 'f', t: "Where are you going?" }, { v: 'm', t: "I'm going to the library to study." }, { w: 800 }, { v: 'f', t: "Question: Where is the boy going?" }], c: ["To the park.", "To the school.", "To the library.", "To the station."], a: 2, exp: "図書室（library）へ行くと言っていたね。" },
+                    { id: "l212", name: "カラーリンB", audio: [{ v: 'm', t: "What color is your new bike?" }, { v: 'f', t: "It's blue. I like it very much." }, { w: 800 }, { v: 'f', t: "Question: What color is the bike?" }], c: ["Red.", "Blue.", "Yellow.", "Green."], a: 1, exp: "Blue（青い）と言っていたね。" },
+                    { id: "l213", name: "ブレックファスン", audio: [{ v: 'f', t: "What do you have for breakfast?" }, { v: 'm', t: "I usually have toast and milk." }, { w: 800 }, { v: 'f', t: "Question: What does the boy have for breakfast?" }], c: ["Rice and tea.", "Toast and milk.", "Egg and juice.", "Bread and water."], a: 1, exp: "Toast and milk と言っていたね。" },
+                    { id: "l214", name: "テニスン", audio: [{ v: 'm', t: "Do you play tennis after school?" }, { v: 'f', t: "No, I usually go to the park with my dog." }, { w: 800 }, { v: 'f', t: "Question: Where does the girl go after school?" }], c: ["To the park.", "To the school.", "To the library.", "To the house."], a: 0, exp: "公園（park）へ行くと言っていたね。" },
+                    { id: "l215", name: "ファザモン", audio: [{ v: 'f', t: "What does your father do on Sundays?" }, { v: 'm', t: "He usually watches TV at home." }, { w: 800 }, { v: 'f', t: "Question: What does her father do?" }], c: ["Plays tennis.", "Watches TV.", "Goes shopping.", "Cooks dinner."], a: 1, exp: "テレビを見る（watches TV）と言っていたね。" },
+                    { id: "l216", name: "キャットン", audio: [{ v: 'm', t: "Look at that cat. It's so cute." }, { v: 'f', t: "Yes, it's my cat, Tama." }, { w: 800 }, { v: 'f', t: "Question: Whose cat is it?" }], c: ["The man's cat.", "The woman's cat.", "Tom's cat.", "Their friend's cat."], a: 1, exp: "It's my cat と女性が言っていたね。" },
+                    { id: "l217", name: "スタディモン", audio: [{ v: 'f', t: "Do you study English every night?" }, { v: 'm', t: "Yes, I study it for one hour." }, { w: 800 }, { v: 'f', t: "Question: How long does the boy study English?" }], c: ["For ten minutes.", "For one hour.", "For two hours.", "Every morning."], a: 1, exp: "One hour（1時間）と言っていたね。" },
+                    { id: "l218", name: "クエッション", audio: [{ v: 'm', t: "Whose book is this? Is it yours?" }, { v: 'f', t: "No, it's Ken's book. He left it here." }, { w: 800 }, { v: 'f', t: "Question: Whose book is it?" }], c: ["The man's.", "The woman's.", "Ken's.", "Their teacher's."], a: 2, exp: "Ken's book と言っていたね。" },
+                    { id: "l219", name: "ホリデーン", audio: [{ v: 'f', t: "What did you do yesterday?" }, { v: 'm', t: "I went to the zoo with my family." }, { w: 800 }, { v: 'f', t: "Question: Where did the boy go yesterday?" }], c: ["To the park.", "To the zoo.", "To the sea.", "To the school."], a: 1, exp: "動物園（zoo）へ行ったと言っていたね。" },
+                    { id: "l220", name: "バースデーB", audio: [{ v: 'm', t: "When is your party?" }, { v: 'f', t: "It's this Saturday. Can you come?" }, { w: 800 }, { v: 'f', t: "Question: When is the party?" }], c: ["This Friday.", "This Saturday.", "This Sunday.", "Next Monday."], a: 1, exp: "This Saturday（今週の土曜日）と言っていたね。" }
+                ]
+            },
+            6: {
+                label: "6. 絵に合う英文",
+                sub: "イラストに合うのはどれ？",
+                type: 'listening_img', icon: '🔮', questions: [
+                    { id: "l301", name: "デスクキャット", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The cat is on the desk." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The cat is on the chair." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The dog is on the desk." }], c: ["a", "b", "c"], a: 0, exp: "on the desk（机の上）の cat（ねこ）を選ぼう。", img: "https://images.unsplash.com/photo-1526336024174-e58f50621cb3?w=400" },
+                    { id: "l302", name: "ペンシルル", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "I have one pencil." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "I have three pencils." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "I have three erasers." }], c: ["a", "b", "c"], a: 1, exp: "three pencils（3本の鉛筆）をききとろう。", img: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400" },
+                    { id: "l303", name: "アップルズ", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "There is one apple." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "There are four apples." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "There are four oranges." }], c: ["a", "b", "c"], a: 1, exp: "four apples（4つのりんご）を選ぼう。", img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400" },
+                    { id: "l304", name: "ランニング", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "He is running." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "He is swimming." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "She is running." }], c: ["a", "b", "c"], a: 0, exp: "He is running.（彼は走っています）を選ぼう。", img: "https://images.unsplash.com/photo-1452626012736-6e46714041b6?w=400" },
+                    { id: "l305", name: "インザボックス", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The ball is under the box." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The ball is in the box." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The ball is on the box." }], c: ["a", "b", "c"], a: 1, exp: "in the box（箱の中）の ball（ボール）を選ぼう。", img: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=400" },
+                    { id: "l306", name: "ドッグアンドボーイ", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The boy is with a dog." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The boy is with a cat." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The girl is with a dog." }], c: ["a", "b", "c"], a: 0, exp: "The boy is with a dog.（犬と一緒にいる男の子）を選ぼう。", img: "https://images.unsplash.com/photo-1534361960057-19889db9621e?w=400" },
+                    { id: "l307", name: "スカイ", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "It is a plane." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "It is a bird." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "They are planes." }], c: ["a", "b", "c"], a: 0, exp: "It is a plane.（飛行機です）を選ぼう。", img: "https://images.unsplash.com/photo-1436491865332-7a61a109c055?w=400" },
+                    { id: "l308", name: "ブックシェルフ", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "Two books are on the shelf." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "Many books are on the shelf." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "A notebook is on the shelf." }], c: ["a", "b", "c"], a: 1, exp: "Many books（たくさんの本）を選ぼう。", img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400" },
+                    { id: "l309", name: "フラワーン", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The flower is red." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The flower is yellow." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The flowers are yellow." }], c: ["a", "b", "c"], a: 1, exp: "The flower is yellow.（黄色い花）を選ぼう。", img: "https://images.unsplash.com/photo-1591954840042-46a8edaa2e82?w=400" },
+                    { id: "l310", name: "クッキング", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "She is making lunch." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "He is making lunch." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "She is making a cake." }], c: ["a", "b", "c"], a: 0, exp: "She is making lunch.（彼女はお昼を作っています）を選ぼう。", img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400" },
+                    { id: "l311", name: "アンダーザツリー", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "A girl is under the tree." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "A boy is under the tree." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "A cat is under the tree." }], c: ["a", "b", "c"], a: 0, exp: "A girl is under the tree.（木の下にいる女の子）を選ぼう。", img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400" },
+                    { id: "l312", name: "ハンド", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "He has a big bag." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "He has a small bag." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "She has a big bag." }], c: ["a", "b", "c"], a: 0, exp: "He has a big bag.（彼は大きな鞄を持っています）を選ぼう。", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400" },
+                    { id: "l313", name: "テニスンB", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "They are playing tennis." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "They are playing baseball." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "They are playing soccer." }], c: ["a", "b", "c"], a: 0, exp: "They are playing tennis.（彼らはテニスをしています）を選ぼう。", img: "https://images.unsplash.com/photo-1592709823125-a191f07a2a5e?w=400" },
+                    { id: "l314", name: "ミルク", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The milk is on the table." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The milk is in the fridge." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The bread is on the table." }], c: ["a", "b", "c"], a: 0, exp: "The milk is on the table.（ミルクが机の上にあります）を選ぼう。", img: "https://images.unsplash.com/photo-1528750955925-53f5a1113945?w=400" },
+                    { id: "l315", name: "ウィンドウ", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The window is open." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The window is closed." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The door is open." }], c: ["a", "b", "c"], a: 0, exp: "The window is open.（窓が開いています）を選ぼう。", img: "https://images.unsplash.com/photo-1503708928676-1cb796a0891e?w=400" },
+                    { id: "l316", name: "バスストップ", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "Many people are at the bus stop." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "Three people are at the bus stop." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "A dog is at the bus stop." }], c: ["a", "b", "c"], a: 1, exp: "Three people（3人の人）を選ぼう。", img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400" },
+                    { id: "l317", name: "ピクニック", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "They are having a picnic." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "They are studying." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "They are running." }], c: ["a", "b", "c"], a: 0, exp: "They are having a picnic.（ピクニックをしています）を選ぼう。", img: "https://images.unsplash.com/photo-1523906834658-6e24ef23ac6c?w=400" },
+                    { id: "l318", name: "バードン", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The bird is in the tree." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The bird is flying." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The birds are in the tree." }], c: ["a", "b", "c"], a: 0, exp: "The bird is in the tree.（木の中に鳥がいます）を選ぼう。", img: "https://images.unsplash.com/photo-1444464666168-49d633b867ad?w=400" },
+                    { id: "l319", name: "ベッドン", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "The boy is in bed." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "The girl is in bed." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "The cat is on the bed." }], c: ["a", "b", "c"], a: 0, exp: "The boy is in bed.（男の子が寝ています）を選ぼう。", img: "https://images.unsplash.com/photo-1520206159162-97ec76ca6749?w=400" },
+                    { id: "l320", name: "ハウスン", audio: [{ v: 'm', t: "a." }, { w: 400 }, { v: 'm', t: "It is a big house." }, { v: 'm', t: "b." }, { w: 400 }, { v: 'm', t: "It is a small house." }, { v: 'm', t: "c." }, { w: 400 }, { v: 'm', t: "They are houses." }], c: ["a", "b", "c"], a: 0, exp: "It is a big house.（大きな家です）を選ぼう。", img: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=400" }
+                ]
+            }
+        };
+
+        let currentQuest = null;
+        let currentQList = [];
+        let currentQIndex = 0;
+        let currentSpeechId = 0; // Track active speech session
+        let selectedWords = [];
+        let clearedIds = JSON.parse(localStorage.getItem('clearedMonsters') || '[]');
+
+        function saveProgress(id) {
+            if (!clearedIds.includes(id)) {
+                clearedIds.push(id);
+                localStorage.setItem('clearedMonsters', JSON.stringify(clearedIds));
+                renderStats();
+            }
+        }
+
+        function renderStats() {
+            const stats = document.getElementById('total-stats');
+            let totalQuestions = 0;
+            let totalCleared = 0;
+            for (const floor in dungeonData) {
+                totalQuestions += dungeonData[floor].questions.length;
+                totalCleared += dungeonData[floor].questions.filter(q => clearedIds.includes(q.id)).length;
+            }
+            stats.innerText = `CLEARED: ${totalCleared} / ${totalQuestions} MONSTERS`;
+            updateFloorList();
+        }
+
+        function showView(id) {
+            stopAllSpeech(); // Crucial: Stop speech when switching views
+            document.querySelectorAll('.transition-view').forEach(v => {
+                v.classList.add('hidden-view');
+                v.style.position = 'absolute';
+            });
+            const active = document.getElementById('view-' + id);
+            active.classList.remove('hidden-view');
+            active.style.position = 'relative';
+        }
+
+        function showCollection() {
+            renderCollection();
+            showView('collection');
+        }
+
+        function renderCollection() {
+            const container = document.getElementById('collection-content');
+            container.innerHTML = '';
+
+            let monsterGlobalIndex = 1;
+            const floors = Object.keys(dungeonData).sort();
+
+            floors.forEach(fNum => {
+                const floor = dungeonData[fNum];
+                const floorHeader = document.createElement('div');
+                floorHeader.className = "flex items-center gap-3 mt-12 mb-6";
+                floorHeader.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-xl">${floor.icon}</div>
+                    <div>
+                        <div class="text-[10px] font-black text-primary uppercase tracking-widest">${floor.label}</div>
+                        <div class="text-xl font-black italic">${floor.sub}</div>
+                    </div>
+                `;
+                container.appendChild(floorHeader);
+
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6";
+
+                floor.questions.forEach(q => {
+                    const isCleared = clearedIds.includes(q.id);
+                    const card = document.createElement('div');
+                    const noStr = String(monsterGlobalIndex).padStart(3, '0');
+                    card.className = `monster-card relative ${isCleared ? '' : 'locked'}`;
+
+                    if (isCleared) {
+                        card.onclick = () => renderReview(q.id);
+                        card.innerHTML = `
+                            <div class="no-badge">No.${noStr}</div>
+                            <div class="w-24 h-24 mb-4">
+                                <img src="https://robohash.org/${q.id}?set=set2&size=150x150" class="w-full h-full object-contain filter drop-shadow-xl">
+                            </div>
+                            <div class="text-xs font-black">${q.name}</div>
+                        `;
+                    } else {
+                        card.innerHTML = `
+                            <div class="no-badge">No.${noStr}</div>
+                            <div class="w-24 h-24 mb-4 grayscale opacity-20">
+                                <img src="https://robohash.org/${q.id}?set=set2&size=150x150" class="w-full h-full object-contain">
+                            </div>
+                            <div class="text-[10px] font-black text-white/20">???</div>
+                        `;
+                    }
+                    grid.appendChild(card);
+                    monsterGlobalIndex++;
+                });
+                container.appendChild(grid);
+            });
+        }
+
+        function renderReview(qId) {
+            let foundQ = null;
+            let globalNo = 0;
+            let found = false;
+            for (const f in dungeonData) {
+                for (const q of dungeonData[f].questions) {
+                    globalNo++;
+                    if (q.id === qId) { foundQ = q; found = true; break; }
+                }
+                if (found) break;
+            }
+            if (!foundQ) return;
+
+            const overlay = document.getElementById('explanation-overlay');
+            const text = document.getElementById('exp-text');
+            const noStr = String(globalNo).padStart(3, '0');
+
+            text.innerHTML = `
+                <div class="mb-8 p-6 bg-white rounded-3xl border border-slate-200 text-slate-900 text-left relative overflow-hidden shadow-inner">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 mr-4 bg-slate-50 rounded-2xl p-2">
+                            <img src="https://robohash.org/${foundQ.id}?set=set2&size=150x150" class="w-full h-full object-contain">
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black text-indigo-500 tracking-widest uppercase mb-1">Monster No.${noStr}</div>
+                            <div class="text-2xl font-black italic tracking-tight">${foundQ.name}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-2xl">
+                             <div class="text-[9px] font-black text-slate-400 uppercase mb-1">The Question</div>
+                             <div class="text-xl font-bold">${foundQ.q.replace(/&nbsp;/g, ' ')}</div>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                             <div class="text-[9px] font-black text-indigo-400 uppercase mb-1">Correct Answer</div>
+                             <div class="text-2xl font-black text-indigo-600">${foundQ.type === 'order' ? foundQ.correct : foundQ.c[foundQ.a]}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-left text-lg font-bold px-4 leading-relaxed text-slate-600 italic">
+                    "${foundQ.exp}"
+                </div>
+            `;
+            overlay.classList.add('active');
+        }
+
+        function startQuest(floor) {
+            currentQuest = dungeonData[floor];
+            // Shuffle and pick up to 5
+            currentQList = [...currentQuest.questions]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 5);
+            currentQIndex = 0;
+            document.getElementById('quest-label').innerText = currentQuest.label;
+            loadQuestion();
+            showView('battle');
+        }
+
+        function loadQuestion() {
+            stopAllSpeech(); // Crucial: Stop speech when switching questions
+            const q = currentQList[currentQIndex];
+            const qArea = document.getElementById('q-content');
+            const ansArea = document.getElementById('answer-area');
+            const hint = document.getElementById('battle-hint');
+            const monsterTitle = document.getElementById('monster-title');
+            const monsterImg = document.getElementById('monster-img');
+            const progress = document.getElementById('quest-progress');
+
+            ansArea.innerHTML = '';
+            hint.innerText = '';
+
+            // Find global No.
+            let globalNo = 0;
+            let found = false;
+            for (let f in dungeonData) {
+                for (let question of dungeonData[f].questions) {
+                    globalNo++;
+                    if (question.id === q.id) { found = true; break; }
+                }
+                if (found) break;
+            }
+            const noStr = String(globalNo).padStart(3, '0');
+
+            monsterTitle.innerHTML = `<span class="opacity-50 mr-2 text-[10px]">No.${noStr}</span> 未浄化モンスター`;
+            progress.innerText = `MONSTER ${currentQIndex + 1} / ${currentQList.length}`;
+            selectedWords = [];
+
+            monsterImg.src = `https://robohash.org/${q.id}?set=set2&size=300x300`;
+            monsterImg.classList.remove('defeated');
+            monsterImg.style.opacity = "1";
+            monsterImg.style.transform = "scale(1)";
+
+            if (currentQuest.type === 'order') {
+                qArea.innerHTML = `<p class='text-sm mb-4 text-slate-400'>${q.q}</p>`;
+                const slotDiv = document.createElement('div');
+                slotDiv.id = 'word-slots';
+                slotDiv.className = "flex flex-wrap justify-center items-center";
+                qArea.appendChild(slotDiv);
+                renderOrderSlots();
+
+                const chipContainer = document.createElement('div');
+                chipContainer.className = "flex flex-wrap gap-2 justify-center";
+                [...q.words].sort(() => Math.random() - 0.5).forEach(word => {
+                    const chip = document.createElement('div');
+                    chip.className = "word-chip";
+                    chip.innerText = word;
+                    chip.onclick = () => addWord(word);
+                    chipContainer.appendChild(chip);
+                });
+                ansArea.appendChild(chipContainer);
+
+                const clr = document.createElement('button');
+                clr.className = "absolute bottom-6 text-[10px] text-slate-500 underline";
+                clr.innerText = "やりなおす";
+                clr.onclick = resetOrder;
+                ansArea.appendChild(clr);
+
+            } else if (currentQuest.type.startsWith('listening')) {
+                let displayHtml = `
+                    <div class='text-center'>
+                        <button onclick='speakCurrent()' class='bg-indigo-600 w-16 h-16 rounded-full shadow-lg text-2xl mb-4'>🔊</button>
+                        <p class='text-[10px] text-indigo-300 mb-4 font-bold'>ボタンをおして 2かい 音をきこう！</p>
+                `;
+
+                // Show illustration for Section 4 and 6
+                if (q.img || currentQuest.type === 'listening_ans' || currentQuest.type === 'listening_img') {
+                    const imgUrl = q.img || `https://robohash.org/${q.id}?set=set2&size=300x300`;
+                    displayHtml += `
+                        <div class="w-full max-w-sm mx-auto mb-6 bg-white p-6 rounded-[3rem] shadow-xl border-4 border-slate-100 overflow-hidden">
+                            <img src="${imgUrl}" class="w-full h-auto object-contain rounded-2xl">
+                        </div>
+                    `;
+                }
+
+                displayHtml += `</div>`;
+                qArea.innerHTML = displayHtml;
+
+                // For Section 4 and 6, show only labels a, b, c
+                const showOnlyLabels = (currentQuest.type === 'listening_ans' || currentQuest.type === 'listening_img');
+                renderChoices(q.c, q.a, q.labels, showOnlyLabels);
+            } else {
+                qArea.innerHTML = q.q;
+                renderChoices(q.c, q.a);
+            }
+        }
+
+        function renderChoices(choices, correctIndex, labels, showOnlyLabels) {
+            const ansArea = document.getElementById('answer-area');
+            const grid = document.createElement('div');
+
+            // Adjust grid columns based on choice count
+            if (choices.length === 4 && !showOnlyLabels) {
+                grid.className = "grid grid-cols-2 gap-4 w-full";
+            } else if (choices.length === 3) {
+                grid.className = "grid grid-cols-3 gap-4 w-full";
+            } else {
+                grid.className = "grid grid-cols-2 gap-4 w-full";
+            }
+
+            choices.forEach((choice, i) => {
+                const btn = document.createElement('button');
+                btn.className = "ans-btn !p-10 flex flex-col items-center justify-center min-h-[140px] shadow-2xl border-4";
+                const labelLetter = String.fromCharCode(97 + i); // a, b, c
+
+                if (showOnlyLabels) {
+                    btn.innerHTML = `<span class="text-7xl font-black text-indigo-600 uppercase">${labelLetter}</span>`;
+                } else {
+                    const text = labels ? labels[i] : choice;
+                    btn.innerHTML = `
+                            <span class="text-sm font-black text-slate-400 uppercase tracking-widest mb-3">${labelLetter}</span>
+                            <span class="text-3xl font-black leading-tight text-slate-800">${text}</span>
+                        `;
+                }
+
+                btn.onclick = () => checkAnswer(i === correctIndex);
+                grid.appendChild(btn);
+            });
+            ansArea.appendChild(grid);
+        }
+
+        function stopAllSpeech() {
+            window.speechSynthesis.cancel();
+            currentSpeechId++; // Invalidate old playback sessions
+        }
+
+        function speakCurrent() {
+            stopAllSpeech();
+            const speechId = currentSpeechId; // Use the incremented ID
+
+            const q = currentQList[currentQIndex];
+            const voices = window.speechSynthesis.getVoices();
+
+            // Prioritize specific high-quality voices for gender distinction
+            const femaleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Zira') || v.name.includes('Google US English'))) || voices.find(v => v.lang.startsWith('en'));
+            const maleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Alex') || v.name.includes('David') || v.name.includes('Daniel') || v.name.includes('Google UK English Male'))) || voices.find(v => v.lang.startsWith('en'));
+
+            const playSet = () => {
+                let sequence = Promise.resolve();
+                const audioParts = Array.isArray(q.audio) ? q.audio : [{ v: 'f', t: q.audio }];
+
+                audioParts.forEach(part => {
+                    sequence = sequence.then(() => {
+                        return new Promise(resolve => {
+                            // Check if this playback session is still active
+                            if (speechId !== currentSpeechId) return resolve();
+
+                            // Handle wait/pause parts
+                            if (part.w) {
+                                setTimeout(() => {
+                                    if (speechId === currentSpeechId) resolve();
+                                    else resolve();
+                                }, part.w);
+                                return;
+                            }
+
+                            const msg = new SpeechSynthesisUtterance(part.t);
+                            msg.voice = part.v === 'm' ? maleVoice : femaleVoice;
+                            msg.lang = 'en-US';
+                            msg.rate = 0.8;
+                            // Higher pitch for female, lower for male to emphasize distinction
+                            msg.pitch = part.v === 'm' ? 0.8 : 1.4;
+
+                            msg.onend = () => {
+                                setTimeout(() => {
+                                    if (speechId === currentSpeechId) resolve();
+                                    else resolve();
+                                }, 400);
+                            };
+                            msg.onerror = resolve;
+                            window.speechSynthesis.speak(msg);
+                        });
+                    });
+                });
+                return sequence;
+            };
+
+            // Play the whole set twice
+            playSet().then(() => {
+                if (speechId === currentSpeechId) {
+                    setTimeout(() => {
+                        if (speechId === currentSpeechId) playSet();
+                    }, 1200);
+                }
+            });
+        }
+
+        function renderOrderSlots() {
+            const container = document.getElementById('word-slots');
+            container.innerHTML = '';
+            selectedWords.forEach(w => {
+                const s = document.createElement('span');
+                s.className = "slot-word mx-1 text-xl";
+                s.innerText = w;
+                container.appendChild(s);
+            });
+            if (selectedWords.length === 0) container.innerHTML = "<span class='text-slate-300 italic font-bold'>ならびかえてね...</span>";
+        }
+
+        function addWord(word) {
+            selectedWords.push(word);
+            renderOrderSlots();
+            if (selectedWords.length === currentQList[currentQIndex].words.length) {
+                const combined = selectedWords.join(' ');
+                checkAnswer(combined === currentQList[currentQIndex].correct);
+            }
+        }
+
+        function resetOrder() {
+            selectedWords = [];
+            renderOrderSlots();
+        }
+
+        function showExplanation() {
+            const q = currentQList[currentQIndex];
+            document.getElementById('exp-text').innerText = q.exp || "もういちど じっくり かんがえてみよう！";
+            document.getElementById('explanation-overlay').classList.add('active');
+        }
+
+        function hideExplanation() {
+            document.getElementById('explanation-overlay').classList.remove('active');
+            if (currentQuest.type === 'order') resetOrder();
+        }
+
+        function checkAnswer(isCorrect) {
+            const ring = document.getElementById('damage-ring');
+            const fx = document.getElementById('damage-fx');
+            const hint = document.getElementById('battle-hint');
+            const monsterImg = document.getElementById('monster-img');
+            const q = currentQList[currentQIndex];
+
+            if (isCorrect) {
+                saveProgress(q.id); // Save cleared state
+
+                // Premium Hit Effects
+                ring.classList.add('hit-anim');
+                fx.classList.remove('hidden');
+
+                // Shake slightly then disappear
+                monsterImg.style.transform = "scale(1.1) rotate(5deg)";
+
+                hint.innerText = "GREAT! HIT!";
+                hint.className = "mt-4 text-3xl text-primary font-black animate-bounce";
+
+                setTimeout(() => {
+                    ring.classList.remove('hit-anim');
+                    fx.classList.add('hidden');
+                    monsterImg.style.opacity = "0";
+                    monsterImg.style.transform = "scale(0.5) rotate(45deg)";
+
+                    setTimeout(() => {
+                        currentQIndex++;
+                        if (currentQIndex < currentQList.length) {
+                            loadQuestion();
+                        } else {
+                            hint.innerText = "⭐ STAGE CLEAR ⭐";
+                            setTimeout(() => {
+                                showView('map');
+                                renderStats();
+                            }, 1500);
+                        }
+                    }, 400);
+                }, 800);
+            } else {
+                hint.innerText = "OH NO! LOOK AT THE HINT!";
+                hint.className = "mt-4 text-lg text-rose-400 font-bold drop-shadow";
+                document.getElementById('view-battle').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('view-battle').classList.remove('shake');
+                    showExplanation();
+                }, 500);
+            }
+        }
+
+        // Circle generator for background
+        function createCircles() {
+            const container = document.getElementById('circles');
+            for (let i = 0; i < 15; i++) {
+                const c = document.createElement('div');
+                c.className = 'circle';
+                c.style.left = Math.random() * 100 + '%';
+                c.style.width = c.style.height = (Math.random() * 50 + 20) + 'px';
+                c.style.animationDelay = (Math.random() * 10) + 's';
+                c.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                container.appendChild(c);
+            }
+        }
+
+        function renderStats() {
+            const stats = document.getElementById('total-stats');
+            let totalQuestions = 0;
+            let totalCleared = 0;
+            for (const floor in dungeonData) {
+                totalQuestions += dungeonData[floor].questions.length;
+                totalCleared += dungeonData[floor].questions.filter(q => clearedIds.includes(q.id)).length;
+            }
+            stats.innerText = `CLEARED: ${totalCleared} / ${totalQuestions} MONSTERS`;
+            updateFloorList();
+        }
+
+        function updateFloorList() {
+            const floorList = document.getElementById('floor-list');
+            floorList.innerHTML = '';
+            for (const floorNum in dungeonData) {
+                const data = dungeonData[floorNum];
+                const button = document.createElement('button');
+                button.onclick = () => startQuest(parseInt(floorNum));
+                button.className = `premium-btn flex items-start gap-5 group w-full`;
+
+                const floorCleared = data.questions.filter(q => clearedIds.includes(q.id)).length;
+                const percent = Math.floor((floorCleared / data.questions.length) * 100);
+
+                button.innerHTML = `
+                    <div class="w-16 h-16 rounded-3xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
+                        ${data.icon}
+                    </div>
+                    <div class="text-left flex-grow">
+                        <div class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">${data.label}</div>
+                        <div class="font-black text-2xl tracking-tighter italic mb-4">${data.sub}</div>
+                        
+                        <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2">
+                             <div class="text-[10px] font-bold text-white/40">${floorCleared} / ${data.questions.length} PURIFIED</div>
+                             <div class="text-[10px] font-black text-primary">${percent}%</div>
+                        </div>
+                    </div>
+                `;
+                floorList.appendChild(button);
+            }
+        }
+
+        // Initial map rendering
+        document.addEventListener('DOMContentLoaded', () => {
+            createCircles();
+            renderStats(); // This calls updateFloorList
+        });
+    </script>
+</body>
+
+</html>
