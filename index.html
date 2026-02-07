@@ -67,7 +67,9 @@
             border-radius: 2rem;
             flex-grow: 1;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
+            /* Allow internal scrolling if needed */
+            -webkit-overflow-scrolling: touch;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
@@ -247,11 +249,28 @@
             color: var(--text-main);
             box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            touch-action: manipulation;
+            touch-action: auto;
+            /* Change to auto for better LINE/mobile compatibility */
             -webkit-tap-highlight-color: transparent;
             pointer-events: auto;
             position: relative;
             z-index: 30;
+        }
+
+        @media (max-width: 640px) {
+            .ans-btn {
+                padding: 0.75rem !important;
+                min-height: 80px !important;
+            }
+
+            .ans-btn span.text-3xl {
+                font-size: 1.25rem !important;
+                /* Smaller text for grandfather/grandmother */
+            }
+
+            .battle-controls {
+                padding: 1.5rem !important;
+            }
         }
 
         .ans-btn:active {
@@ -1136,7 +1155,7 @@
 
             choices.forEach((choice, i) => {
                 const btn = document.createElement('button');
-                btn.className = "ans-btn !p-10 flex flex-col items-center justify-center min-h-[140px] shadow-2xl border-4";
+                btn.className = "ans-btn flex flex-col items-center justify-center min-h-[140px] shadow-2xl border-4";
                 const labelLetter = String.fromCharCode(97 + i); // a, b, c
 
                 if (showOnlyLabels) {
@@ -1144,8 +1163,8 @@
                 } else {
                     const text = labels ? labels[i] : choice;
                     btn.innerHTML = `
-                            <span class="text-sm font-black text-slate-400 uppercase tracking-widest mb-3">${labelLetter}</span>
-                            <span class="text-3xl font-black leading-tight text-slate-800">${text}</span>
+                            <span class="text-sm font-black text-slate-400 uppercase tracking-widest mb-1 sm:mb-3">${labelLetter}</span>
+                            <span class="text-2xl sm:text-3xl font-black leading-tight text-slate-800 break-all">${text}</span>
                         `;
                 }
 
