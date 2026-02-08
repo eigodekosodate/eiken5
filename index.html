@@ -469,6 +469,14 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
     </style>
+    <script>
+        if (navigator.userAgent.toLowerCase().includes("line")) {
+            alert(
+                "LINE内ブラウザでは正しく動作しません。\n" +
+                "「…」から→「ブラウザで開く」を選んでください。"
+            );
+        }
+    </script>
 </head>
 
 <body>
