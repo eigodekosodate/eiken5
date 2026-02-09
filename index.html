@@ -471,21 +471,17 @@
     </style>
     
     <script>
-        (function () {
+        document.addEventListener('DOMContentLoaded', function () {
             const ua = navigator.userAgent.toLowerCase();
-
             let message = '';
 
             if (ua.includes('line')) {
                 message =
-                    'LINE内ブラウザでは正しく動作しません。右上の「…」→「ブラウザで開く」を選んでください。';
+                    'LINE内ブラウザでは正しく動作しません。\nブラウザメニューの「…」→「ブラウザで開く」を選んでください。';
 
-            } else if (
-                ua.includes('twitter') ||
-                ua.includes('x.com')
-            ) {
+            } else if (ua.includes('twitter') || ua.includes('x.com')) {
                 message =
-                    'Xアプリ内ブラウザでは正しく動作しません。右上の「…」→「ブラウザで開く」からアクセスしてください。';
+                    'Xアプリ内ブラウザでは正しく動作しません。\nブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
 
             } else if (
                 ua.includes('instagram') ||
@@ -493,13 +489,14 @@
                 ua.includes('fb_iab')
             ) {
                 message =
-                    'Instagram内ブラウザでは正しく動作しません。右上の「…」→「ブラウザで開く」からアクセスしてください。';
+                    'Instagram内ブラウザでは正しく動作しません。\nブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
             }
 
             if (!message) return;
-
+            
             const notice = document.createElement('div');
             notice.innerText = message;
+
             notice.style.position = 'fixed';
             notice.style.top = '0';
             notice.style.left = '0';
@@ -512,8 +509,9 @@
             notice.style.zIndex = '99999';
 
             document.body.prepend(notice);
-        })();
+        });
     </script>
+
 
 
     <!-- Google tag (gtag.js) -->
