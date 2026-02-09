@@ -473,19 +473,27 @@
     <script>
         (function () {
             const ua = navigator.userAgent.toLowerCase();
-            const ref = document.referrer.toLowerCase();
             
             let message = '';
-            
+
             if (ua.includes('line')) {
                 message =
                     'LINE内ブラウザでは正しく動作しません。\n\n' +
-                    'メニューの「…」→「ブラウザで開く」を選んでください。';
-            } 
-            else if (ua.includes('twitter') || ref.includes('t.co')) {
+                    '右上の「…」→「ブラウザで開く」を選んでください。';
+
+            } else if (
+                ua.includes('instagram') ||
+                ua.includes('fbav') ||
+                ua.includes('fb_iab')
+            ) {
+                message =
+                    'Instagram内ブラウザでは正しく動作しません。\n\n' +
+                    '右上の「…」→「ブラウザで開く」からアクセスしてください。';
+
+            } else if (ua.includes('twitter')) {
                 message =
                     'Xアプリ内ブラウザでは正しく動作しません。\n\n' +
-                    'メニューの「…」→「ブラウザで開く」からアクセスしてください。';
+                    '右上の「…」→「ブラウザで開く」からアクセスしてください。';
             }
 
             if (message) {
@@ -493,7 +501,6 @@
             }
         })();
     </script>
-
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HJR225XCK"></script>
