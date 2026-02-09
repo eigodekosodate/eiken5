@@ -473,15 +473,22 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ua = navigator.userAgent.toLowerCase();
+            const ref = document.referrer.toLowerCase();
             let message = '';
 
             if (ua.includes('line')) {
                 message =
-                    'LINE内ブラウザでは正しく動作しません。\nブラウザメニューの「…」→「ブラウザで開く」を選んでください。';
+                    'LINE内ブラウザでは正しく動作しません。\n' +
+                    'ブラウザメニューの「…」→「ブラウザで開く」を選んでください。';
 
-            } else if (ua.includes('twitter') || ua.includes('x.com')) {
+            } else if (
+                ref.includes('t.co') ||
+                ref.includes('twitter.com') ||
+                ref.includes('x.com')
+            ) {
                 message =
-                    'Xアプリ内ブラウザでは正しく動作しません。\nブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
+                    'Xアプリ内ブラウザでは正しく動作しません。\n\n' +
+                    'ブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
 
             } else if (
                 ua.includes('instagram') ||
@@ -489,28 +496,15 @@
                 ua.includes('fb_iab')
             ) {
                 message =
-                    'Instagram内ブラウザでは正しく動作しません。\nブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
+                    'Instagram内ブラウザでは正しく動作しません。\n\n' +
+                    'ブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
             }
 
             if (!message) return;
-            
-            const notice = document.createElement('div');
-            notice.innerText = message;
-
-            notice.style.position = 'fixed';
-            notice.style.top = '0';
-            notice.style.left = '0';
-            notice.style.width = '100%';
-            notice.style.background = '#fff3cd';
-            notice.style.color = '#000';
-            notice.style.padding = '14px';
-            notice.style.fontSize = '14px';
-            notice.style.textAlign = 'center';
-            notice.style.zIndex = '99999';
-
-            document.body.prepend(notice);
+            alert(message);
         });
     </script>
+
 
 
 
