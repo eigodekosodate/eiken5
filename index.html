@@ -470,24 +470,27 @@
         }
     </style>
     <script>
-        if (navigator.userAgent.toLowerCase().includes("line")) {
-            alert(
-                "LINE内ブラウザでは正しく動作しません。\n" +
-                "「…」から→「ブラウザで開く」を選んでください。"
-            );
-        }
-    </script>
-    <script>
         (function () {
             const ua = navigator.userAgent.toLowerCase();
-            if (ua.includes('twitter')) {
-                alert(
+
+            let message = '';
+
+            if (ua.includes('line')) {
+                message =
+                    'LINE内ブラウザでは正しく動作しません。\n\n' +
+                    '右上の「…」→「ブラウザで開く」を選んでください。';
+            } else if (ua.includes('twitter')) {
+                message =
                     'Xアプリ内ブラウザでは正しく動作しません。\n\n' +
-                    '右上の「…」→「ブラウザで開く」からアクセスしてください。'
-                );
+                    '右上の「…」→「ブラウザで開く」からアクセスしてください。';
+            }
+
+            if (message) {
+                alert(message);
             }
         })();
     </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HJR225XCK"></script>
     <script>
