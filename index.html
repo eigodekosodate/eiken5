@@ -473,13 +473,19 @@
     <script>
         (function () {
             const ua = navigator.userAgent.toLowerCase();
-            
+
             let message = '';
 
             if (ua.includes('line')) {
                 message =
-                    'LINE内ブラウザでは正しく動作しません。\n\n' +
-                    'ブラウザメニューの「…」→「ブラウザで開く」を選んでください。';
+                    'LINE内ブラウザでは正しく動作しません。右上の「…」→「ブラウザで開く」を選んでください。';
+
+            } else if (
+                ua.includes('twitter') ||
+                ua.includes('x.com')
+            ) {
+                message =
+                    'Xアプリ内ブラウザでは正しく動作しません。右上の「…」→「ブラウザで開く」からアクセスしてください。';
 
             } else if (
                 ua.includes('instagram') ||
@@ -487,20 +493,28 @@
                 ua.includes('fb_iab')
             ) {
                 message =
-                    'Instagram内ブラウザでは正しく動作しません。\n\n' +
-                    'ブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
-
-            } else if (ua.includes('twitter')) {
-                message =
-                    'Xアプリ内ブラウザでは正しく動作しません。\n\n' +
-                    'ブラウザメニューの「…」→「ブラウザで開く」からアクセスしてください。';
+                    'Instagram内ブラウザでは正しく動作しません。右上の「…」→「ブラウザで開く」からアクセスしてください。';
             }
 
-            if (message) {
-                alert(message);
-            }
+            if (!message) return;
+
+            const notice = document.createElement('div');
+            notice.innerText = message;
+            notice.style.position = 'fixed';
+            notice.style.top = '0';
+            notice.style.left = '0';
+            notice.style.width = '100%';
+            notice.style.background = '#fff3cd';
+            notice.style.color = '#000';
+            notice.style.padding = '14px';
+            notice.style.fontSize = '14px';
+            notice.style.textAlign = 'center';
+            notice.style.zIndex = '99999';
+
+            document.body.prepend(notice);
         })();
     </script>
+
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HJR225XCK"></script>
