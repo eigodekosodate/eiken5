@@ -535,9 +535,8 @@
                     <div
                         class="inline-block bg-primary/20 text-primary px-4 py-1.5 rounded-full font-black text-[10px] tracking-widest mb-3 border border-primary/30">
                         LEVEL 5 ADVENTURE</div>
-                    <h1 class="text-4xl md:text-6xl font-black italic tracking-tighter mb-2">Quest Map</h1>
-                    <p class="text-white/40 text-sm font-medium">Select a dungeon to start your English mastery journey.
-                    </p>
+                    <h1 class="text-4xl md:text-6xl font-black italic tracking-tighter mb-2">英検5級 Quest Map</h1>
+                    <p class="text-white/40 text-sm font-medium">このクエストは英語にふれるための冒険です。何度でもチャレンジできます。</p>
                 </div>
 
                 <div id="floor-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
@@ -585,27 +584,62 @@
                 </div>
 
                 <!-- Controls -->
-                <div class="battle-controls">
-                    <div id="answer-area" class="w-full max-w-3xl mx-auto flex flex-col items-center gap-4">
-                        <!-- Answer buttons here -->
-                    </div>
-                </div>
             </div>
+        </div>
 
-            <!-- COLLECTION VIEW -->
-            <div id="view-collection" class="transition-view hidden-view p-6 md:p-12">
-                <div class="flex justify-between items-center mb-12">
-                    <div>
-                        <h2 class="text-3xl md:text-5xl font-black tracking-tighter italic">Encyclopedia</h2>
-                        <p class="text-white/40 text-sm">The library of monsters you have purified.</p>
-                    </div>
-                    <button onclick="showView('map')" class="premium-btn !px-8 font-black">✕ BACK TO MAP</button>
+        <!-- COLLECTION VIEW -->
+        <div id="view-collection" class="transition-view hidden-view flex flex-col h-full bg-slate-50">
+            <div
+                class="flex-none flex justify-between items-center p-6 md:p-12 pb-4 border-b border-slate-200 bg-slate-50 z-10">
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-black tracking-tighter italic">Encyclopedia</h2>
+                    <p class="text-slate-400 text-sm font-bold">The library of monsters you have purified.</p>
                 </div>
-                <div id="collection-content" class="overflow-y-auto pr-4">
-                    <!-- Categories and Grids dynamically generated -->
+                <button onclick="showView('map')"
+                    class="premium-btn !px-8 font-black shadow-lg hover:scale-105 active:scale-95 transition-transform">✕
+                    BACK TO MAP</button>
+            </div>
+            <!-- Content Area: Scrolls independently -->
+            <div id="collection-content" class="flex-grow overflow-y-auto p-6 md:p-12 pt-4 pb-24">
+                <!-- Categories and Grids dynamically generated -->
+            </div>
+        </div>
+
+        <!-- CONTACT VIEW -->
+        <div id="view-contact" class="transition-view hidden-view p-6 md:p-12">
+            <div class="flex justify-between items-center mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-black tracking-tighter italic">Contact</h2>
+                    <p class="text-white/40 text-sm">Get in touch with us.</p>
+                </div>
+                <button onclick="showView('map')" class="premium-btn !px-8 font-black">✕ BACK TO MAP</button>
+            </div>
+            <div class="flex flex-col items-center justify-center h-full pb-20">
+                <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-lg w-full text-center">
+                    <div class="text-6xl mb-6">📧</div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-4">お問い合わせ</h3>
+                    <p class="text-slate-500 font-bold mb-8 leading-relaxed">
+                        ご質問・ご要望は<br>こちらのメールアドレスまでお願いいたします。
+                    </p>
+                    <a href="mailto:eigodekosodatesale@gmail.com"
+                        class="block w-full bg-indigo-600 text-white p-5 rounded-2xl font-black text-lg shadow-lg hover:bg-indigo-700 active:scale-95 transition-all">
+                        eigodekosodatesale@gmail.com
+                    </a>
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="absolute bottom-4 left-0 w-full text-center z-50 pointer-events-none">
+            <div
+                class="inline-flex items-center gap-4 bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full pointer-events-auto">
+                <span class="text-[10px] font-bold text-white/50">Copyright(C) 英語de子育て　All Rights Reserved.</span>
+                <div class="w-px h-3 bg-white/20"></div>
+                <button onclick="showView('contact')"
+                    class="text-[10px] font-bold text-white/80 hover:text-white hover:underline">お問い合わせ</button>
+            </div>
+        </footer>
     </main>
 
     <script>
@@ -1096,7 +1130,7 @@
             const container = document.getElementById('collection-content');
             container.innerHTML = '';
 
-            // Calculate Totals
+            // Calculate Totals & Rate
             let totalClears = 0;
             let totalMistakes = 0;
             Object.values(monsterStats).forEach(stat => {
@@ -1104,18 +1138,59 @@
                 totalMistakes += stat.mistakes || 0;
             });
 
+            const totalAttempts = totalClears + totalMistakes;
+            let totalRate = 0;
+            if (totalAttempts > 0) {
+                totalRate = Math.floor((totalClears / totalAttempts) * 100);
+            }
+
+            // Dynamic Message & Button
+            let msgTitle = "";
+            let msgBody = "";
+            let btnText = "";
+            const btnLink = "https://eigodekosodate.github.io/LP2/";
+
+            if (totalRate >= 80) {
+                msgTitle = "英語スキルが目を覚まし始めている！";
+                msgBody = "たくさんのことばを思い出し、答えられる場面が多かったようだ。<br>そろそろ<strong>「ことばを使う冒険」</strong>にも出られそうだ。";
+                btnText = "英語を使うクエストへ進む";
+            } else if (totalRate >= 50) {
+                msgTitle = "英語スキルは成長中！";
+                msgBody = "思い出せたことばもあれば、もう一歩のものもあったようだ。<br>冒険者はみんな、ここを何度も行き来して強くなる。";
+                btnText = "英語スキルをきたえる旅へ";
+            } else {
+                msgTitle = "英語スキルのタネを発見！";
+                msgBody = "まだ見たことのないことばが多かったかもしれない。<br>でも大丈夫。どんな冒険者も、最初はここから始まる。";
+                btnText = "はじめの村からスタートする";
+            }
+
             // Summary Card
             const summary = document.createElement('div');
-            summary.className = "mb-8 p-6 bg-white rounded-3xl border border-slate-200 shadow-sm flex justify-around items-center";
+            summary.className = "mb-8 p-6 bg-white rounded-3xl border border-slate-200 shadow-sm";
             summary.innerHTML = `
-                <div class="text-center">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Purified</div>
-                    <div class="text-3xl font-black text-blue-500">✨ ${totalClears}</div>
+                <div class="flex justify-around items-center mb-6">
+                    <div class="text-center">
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Purified</div>
+                        <div class="text-3xl font-black text-blue-500">✨ ${totalClears}</div>
+                    </div>
+                    <div class="w-px h-12 bg-slate-100"></div>
+                     <div class="text-center">
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Correct Rate</div>
+                        <div class="text-3xl font-black text-indigo-500">🎯 ${totalRate}%</div>
+                    </div>
+                    <div class="w-px h-12 bg-slate-100"></div>
+                    <div class="text-center">
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Mistakes</div>
+                        <div class="text-3xl font-black text-rose-400">❌ ${totalMistakes}</div>
+                    </div>
                 </div>
-                <div class="w-px h-12 bg-slate-100"></div>
-                <div class="text-center">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Mistakes</div>
-                    <div class="text-3xl font-black text-rose-400">❌ ${totalMistakes}</div>
+
+                <div class="bg-slate-50 rounded-2xl p-6 text-center">
+                    <h3 class="text-lg font-black text-slate-800 mb-2">${msgTitle}</h3>
+                    <p class="text-sm text-slate-600 font-bold mb-6 leading-relaxed">${msgBody}</p>
+                    <a href="${btnLink}" target="_blank" class="inline-block w-full md:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-3 rounded-xl font-black shadow-lg hover:scale-105 transition-transform no-underline">
+                        ${btnText} ➔
+                    </a>
                 </div>
             `;
             container.appendChild(summary);
