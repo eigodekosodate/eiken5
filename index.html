@@ -477,6 +477,17 @@
             );
         }
     </script>
+    <script>
+        (function () {
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('twitter')) {
+                alert(
+                    'Xアプリ内ブラウザでは正しく動作しません。\n\n' +
+                    '右上の「…」→「ブラウザで開く」からアクセスしてください。'
+                );
+            }
+        })();
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HJR225XCK"></script>
     <script>
