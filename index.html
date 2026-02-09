@@ -469,20 +469,23 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
     </style>
+    
     <script>
         (function () {
             const ua = navigator.userAgent.toLowerCase();
-
+            const ref = document.referrer.toLowerCase();
+            
             let message = '';
-
+            
             if (ua.includes('line')) {
                 message =
                     'LINE内ブラウザでは正しく動作しません。\n\n' +
-                    '右上の「…」→「ブラウザで開く」を選んでください。';
-            } else if (ua.includes('twitter')) {
+                    'メニューの「…」→「ブラウザで開く」を選んでください。';
+            } 
+            else if (ua.includes('twitter') || ref.includes('t.co')) {
                 message =
                     'Xアプリ内ブラウザでは正しく動作しません。\n\n' +
-                    '右上の「…」→「ブラウザで開く」からアクセスしてください。';
+                    'メニューの「…」→「ブラウザで開く」からアクセスしてください。';
             }
 
             if (message) {
@@ -490,6 +493,7 @@
             }
         })();
     </script>
+
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HJR225XCK"></script>
