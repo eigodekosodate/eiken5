@@ -273,6 +273,55 @@
             }
         }
 
+        /* PC: 選択肢をスクロールせず全表示 */
+        @media (min-width: 768px) {
+            #view-battle {
+                display: flex !important;
+                flex-direction: column;
+                min-height: 0;
+                overflow: hidden;
+            }
+            #view-battle .battle-stage {
+                flex: 0 1 auto;
+                padding: 1rem;
+                min-height: 0;
+            }
+            #view-battle .monster-box {
+                width: 160px;
+                height: 160px;
+            }
+            #view-battle .monster-box img {
+                width: 160px;
+                height: 160px;
+            }
+            #view-battle .monster-shadow {
+                width: 120px;
+                height: 20px;
+            }
+            #view-battle #monster-title {
+                margin-top: 0.5rem;
+            }
+            #view-battle #battle-hint {
+                margin-top: 0.25rem;
+                min-height: 2rem;
+            }
+            #view-battle #q-content {
+                margin-top: 0.75rem;
+                font-size: 1.5rem;
+            }
+            #view-battle .battle-controls {
+                flex-shrink: 0;
+                padding: 1.25rem;
+            }
+            #view-battle .ans-btn {
+                padding: 0.875rem;
+                min-height: 72px;
+            }
+            #view-battle .ans-btn span.text-3xl {
+                font-size: 1.125rem;
+            }
+        }
+
         .ans-btn:active {
             transform: scale(0.94);
             background: #f0f9ff;
@@ -623,12 +672,14 @@
                 </div>
 
                 <!-- Controls -->
+                <div class="battle-controls">
+                    <div id="answer-area" class="flex flex-col items-center gap-4 relative"></div>
+                </div>
             </div>
-        </div>
 
-        <!-- COLLECTION VIEW -->
-        <div id="view-collection" class="transition-view hidden-view flex flex-col h-full bg-slate-50">
-            <div
+            <!-- COLLECTION VIEW -->
+            <div id="view-collection" class="transition-view hidden-view flex flex-col flex-1 min-h-0 bg-slate-50 overflow-hidden">
+                <div
                 class="flex-none flex justify-between items-center p-6 md:p-12 pb-4 border-b border-slate-200 bg-slate-50 z-10">
                 <div>
                     <h2 class="text-3xl md:text-5xl font-black tracking-tighter italic">Encyclopedia</h2>
@@ -637,23 +688,23 @@
                 <button onclick="showView('map')"
                     class="premium-btn !px-8 font-black shadow-lg hover:scale-105 active:scale-95 transition-transform">✕
                     BACK TO MAP</button>
-            </div>
-            <!-- Content Area: Scrolls independently -->
-            <div id="collection-content" class="flex-grow overflow-y-auto p-6 md:p-12 pt-4 pb-24">
+                </div>
+                <!-- Content Area: Scrolls independently -->
+                <div id="collection-content" class="flex-grow overflow-y-auto p-6 md:p-12 pt-4 pb-24">
                 <!-- Categories and Grids dynamically generated -->
+                </div>
             </div>
-        </div>
 
-        <!-- CONTACT VIEW -->
-        <div id="view-contact" class="transition-view hidden-view p-6 md:p-12">
-            <div class="flex justify-between items-center mb-12">
+            <!-- CONTACT VIEW -->
+            <div id="view-contact" class="transition-view hidden-view flex flex-col flex-1 min-h-0 overflow-y-auto p-6 md:p-12">
+                <div class="flex justify-between items-center mb-12">
                 <div>
                     <h2 class="text-3xl md:text-5xl font-black tracking-tighter italic">Contact</h2>
                     <p class="text-white/40 text-sm">Get in touch with us.</p>
                 </div>
                 <button onclick="showView('map')" class="premium-btn !px-8 font-black">✕ BACK TO MAP</button>
-            </div>
-            <div class="flex flex-col items-center justify-center h-full pb-20">
+                </div>
+                <div class="flex flex-col items-center justify-center flex-1 pb-20">
                 <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-lg w-full text-center">
                     <div class="text-6xl mb-6">📧</div>
                     <h3 class="text-2xl font-black text-slate-800 mb-4">お問い合わせ</h3>
@@ -665,18 +716,17 @@
                         eigodekosodatesale@gmail.com
                     </a>
                 </div>
+                </div>
             </div>
-        </div>
         </div>
 
         <!-- Footer -->
         <footer class="absolute bottom-4 left-0 w-full text-center z-50 pointer-events-none">
             <div
-                class="inline-flex items-center gap-4 bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full pointer-events-auto">
-                <span class="text-[10px] font-bold text-white/50">Copyright(C) 英語de子育て　All Rights Reserved.</span>
-                <div class="w-px h-3 bg-white/20"></div>
+                class="inline-flex flex-col items-center gap-1 bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full pointer-events-auto">
                 <button onclick="showView('contact')"
                     class="text-[10px] font-bold text-white/80 hover:text-white hover:underline">お問い合わせ</button>
+                <span class="text-[10px] font-bold text-white/50">Copyright(C) 英語de子育て　All Rights Reserved.</span>
             </div>
         </footer>
     </main>
@@ -782,7 +832,7 @@
                     { id: "v376", name: "ライオン", q: "A ( &nbsp;&nbsp;&nbsp; ) is the king of the jungle. It roars.", c: ["cat", "dog", "lion", "rabbit"], a: 2, exp: "「ライオン」は lion。" },
                     { id: "v377", name: "エレファン", q: "This ( &nbsp;&nbsp;&nbsp; ) is very big and has a long nose.", c: ["ant", "bee", "cat", "elephant"], a: 3, exp: "「象（ぞう）」は elephant。" },
                     { id: "v378", name: "モンキー", q: "A ( &nbsp;&nbsp;&nbsp; ) climbs trees and likes bananas.", c: ["monkey", "red", "desk", "bird"], a: 0, exp: "「猿（さる）」は monkey。" },
-                    { id: "v379", name: "ベアー", q: "A ( &nbsp;&nbsp;&nbsp; ) is a big animal in the forest. It likes honey.", c: ["bear", "lion", "tiger", "monkey"], a: 0, exp: "「熊（くま）」は bear。" },
+                    { id: "v379", name: "ベアー", q: "A ( &nbsp;&nbsp;&nbsp; ) is a big animal in the forest. It likes honey. It sleeps in winter.", c: ["bear", "lion", "tiger", "monkey"], a: 0, exp: "「熊（くま）」は bear。冬眠するのは熊だけだね。" },
                     { id: "v380", name: "スネーク", q: "That ( &nbsp;&nbsp;&nbsp; ) is long and has no legs.", c: ["snake", "bird", "rabbit", "horse"], a: 0, exp: "「蛇（へび）」は snake。" },
                     { id: "v381", name: "アント", q: "Look at the small ( &nbsp;&nbsp;&nbsp; ) on the ground.", c: ["elephant", "bear", "ant", "lion"], a: 2, exp: "「蟻（あり）」は ant。" },
                     { id: "v382", name: "ビー", q: "A ( &nbsp;&nbsp;&nbsp; ) makes honey and flies.", c: ["bird", "bee", "cat", "dog"], a: 1, exp: "「蜂（はち）」は bee。" },
@@ -852,7 +902,7 @@
                     { id: "v512", name: "ブルーズ", q: "The sky and the sea are ( &nbsp;&nbsp;&nbsp; ).", c: ["red", "blue", "black", "white"], a: 1, exp: "「青」は blue。" },
                     { id: "v513", name: "グリーンズ", q: "Common grass and leaves are ( &nbsp;&nbsp;&nbsp; ).", c: ["green", "pink", "purple", "brown"], a: 0, exp: "「緑」は green。" },
                     { id: "v514", name: "イエローズ", q: "Lemons and bananas are ( &nbsp;&nbsp;&nbsp; ).", c: ["black", "white", "yellow", "orange"], a: 2, exp: "「黄色」は yellow。" },
-                    { id: "v515", name: "ブラックン", q: "Night and coal are ( &nbsp;&nbsp;&nbsp; ).", c: ["white", "black", "red", "blue"], a: 1, exp: "「黒」は black。" },
+                    { id: "v515", name: "ブラックン", q: "Night and a crow are ( &nbsp;&nbsp;&nbsp; ).", c: ["white", "black", "red", "blue"], a: 1, exp: "「黒」は black。" },
                     { id: "v516", name: "ホワイトン", q: "Milk and snow are ( &nbsp;&nbsp;&nbsp; ).", c: ["white", "black", "brown", "blue"], a: 0, exp: "「白」は white。" },
                     { id: "v517", name: "ブラウンン", q: "Chocolate and wood are ( &nbsp;&nbsp;&nbsp; ).", c: ["pink", "brown", "orange", "purple"], a: 1, exp: "「茶色」は brown。" },
                     { id: "v518", name: "ピンクン", q: "Pigs and cherry blossoms are ( &nbsp;&nbsp;&nbsp; ).", c: ["pink", "blue", "black", "green"], a: 0, exp: "「ピンク」は pink。" },
@@ -887,10 +937,10 @@
                     { id: "v603", name: "ニードン", q: "I ( &nbsp;&nbsp;&nbsp; ) a pencil to write a letter.", c: ["was", "is", "need", "sky"], a: 2, exp: "書くために「必要だ」は need。" },
                     { id: "v604", name: "ワンットン", q: "I ( &nbsp;&nbsp;&nbsp; ) to drink some water.", c: ["want", "was", "is", "blue"], a: 0, exp: "「〜したい、ほしい」は want (to 〜) だね。" },
                     { id: "v605", name: "キャンノン", q: "I ( &nbsp;&nbsp;&nbsp; ) swim well.", c: ["am", "do", "can", "is"], a: 2, exp: "「〜できる」は can。" },
-                    { id: "v611", name: "ユージュア", q: "I ( &nbsp;&nbsp;&nbsp; ) get up at seven.", c: ["usually", "always", "sometimes", "often"], a: 0, exp: "「ふだんは・たいてい」は usually。" },
-                    { id: "v612", name: "オルウェイ", q: "He is ( &nbsp;&nbsp;&nbsp; ) happy.", c: ["always", "usually", "often", "sometimes"], a: 0, exp: "「いつも、常に」は always。" },
-                    { id: "v613", name: "サムタイム", q: "I ( &nbsp;&nbsp;&nbsp; ) play games.", c: ["sometimes", "always", "usually", "often"], a: 0, exp: "「ときどき」は sometimes。" },
-                    { id: "v614", name: "オフン", q: "She ( &nbsp;&nbsp;&nbsp; ) goes to the park.", c: ["often", "always", "sometimes", "usually"], a: 0, exp: "「よく、しばしば」は often。" },
+                    { id: "v611", name: "ユージュア", q: "I ( &nbsp;&nbsp;&nbsp; ) get up at seven. But on Sundays I sleep in.", c: ["usually", "always", "never", "seldom"], a: 0, exp: "「ふだんは・たいてい」は usually。日曜は寝坊するなら always ではないね。" },
+                    { id: "v612", name: "オルウェイ", q: "He is ( &nbsp;&nbsp;&nbsp; ) happy. He smiles every day.", c: ["always", "never", "seldom", "sometimes"], a: 0, exp: "「いつも、常に」は always。毎日笑うなら never/seldom/sometimes ではないね。" },
+                    { id: "v613", name: "サムタイム", q: "I ( &nbsp;&nbsp;&nbsp; ) play games. I play about twice a week.", c: ["sometimes", "always", "never", "seldom"], a: 0, exp: "「ときどき」は sometimes。週2回程度なら sometimes がぴったりだね。" },
+                    { id: "v614", name: "オフン", q: "She ( &nbsp;&nbsp;&nbsp; ) goes to the park. She goes there four or five times a week.", c: ["often", "never", "seldom", "rarely"], a: 0, exp: "「よく、しばしば」は often。never/seldom/rarely は頻度が低い意味で文脈に合わないよ。" },
                     { id: "v621", name: "ウェルン", q: "You dance very ( &nbsp;&nbsp;&nbsp; ).", c: ["good", "well", "nice", "fine"], a: 1, exp: "「じょうずに」は well。よくつかう副詞だよ。" }
                 ]
             },
