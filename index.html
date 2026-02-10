@@ -271,6 +271,14 @@
             .battle-controls {
                 padding: 1.5rem !important;
             }
+
+            /* スマホ: フッターとの重なり防止 */
+            .view-frame {
+                padding-bottom: 5.5rem;
+            }
+            #view-battle .battle-controls {
+                padding-bottom: 5rem;
+            }
         }
 
         /* PC: 選択肢をスクロールせず全表示 */
@@ -705,14 +713,14 @@
                 <button onclick="showView('map')" class="premium-btn !px-8 font-black">✕ BACK TO MAP</button>
                 </div>
                 <div class="flex flex-col items-center justify-center flex-1 pb-20">
-                <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-lg w-full text-center">
+                <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-lg w-full text-center overflow-hidden">
                     <div class="text-6xl mb-6">📧</div>
                     <h3 class="text-2xl font-black text-slate-800 mb-4">お問い合わせ</h3>
                     <p class="text-slate-500 font-bold mb-8 leading-relaxed">
                         ご質問・ご要望は<br>こちらのメールアドレスまでお願いいたします。
                     </p>
                     <a href="mailto:eigodekosodatesale@gmail.com"
-                        class="block w-full bg-indigo-600 text-white p-5 rounded-2xl font-black text-lg shadow-lg hover:bg-indigo-700 active:scale-95 transition-all">
+                        class="block w-full max-w-full bg-indigo-600 text-white p-5 rounded-2xl font-black text-sm sm:text-base shadow-lg hover:bg-indigo-700 active:scale-95 transition-all break-all text-center box-border">
                         eigodekosodatesale@gmail.com
                     </a>
                 </div>
@@ -1016,7 +1024,7 @@
                     { id: "o114", name: "ウォークイ", q: "公園を散歩します。", words: ["the park", "i", "walk in"], correct: "i walk in the park", exp: "walk in 〜 で「〜を歩く・散歩する」だね。" },
                     { id: "o115", name: "トークア", q: "英語で話しましょう。", words: ["english", "in", "let's talk"], correct: "let's talk in english", exp: "talk in (言辞) で「〜語で話す」だよ。" },
                     { id: "o116", name: "カムフロ", q: "日本出身です。", words: ["i", "japan", "come from"], correct: "i come from japan", exp: "come from 〜 で「〜の出身」だね。" },
-                    { id: "o117", name: "ターンオ", q: "テレビを消してください。", words: ["the TV", "off", "turn", "please"], correct: "turn off the TV please", exp: "turn off 〜 で「〜を消す」だよ。" },
+                    { id: "o117", name: "ターンオ", q: "テレビを消してください。", words: ["the TV", "off", "turn", "please"], correct: "turn off the TV please", acceptable: ["turn off the TV please", "please turn off the TV"], exp: "turn off 〜 で「〜を消す」だよ。" },
                     { id: "o118", name: "ゴーオン", q: "ピクニックに行きます。", words: ["go on", "i", "a picnic"], correct: "i go on a picnic", exp: "go on a picnic で「ピクニックに行く」だよ。" },
                     { id: "o119", name: "ライトア", q: "手紙を書きます。", words: ["a letter", "i", "write"], correct: "i write a letter", exp: "write a letter で「手紙を書く」だね。" },
                     { id: "o120", name: "プットオ", q: "コートを着なさい。", words: ["your coat", "on", "put"], correct: "put on your coat", exp: "put on 〜 で「〜を着る」という基本熟語だよ！" },
@@ -1045,8 +1053,8 @@
                     { id: "o217", name: "レッツゴ", q: "行きましょう。", words: ["go", "let's"], correct: "let's go", exp: "「〜しよう」は Let's...。" },
                     { id: "o218", name: "オープン", q: "箱を開けて。", words: ["the box", "open"], correct: "open the box", exp: "「開ける」は open。" },
                     { id: "o219", name: "クローズ", q: "本を閉じて。", words: ["book", "your", "close"], correct: "close your book", exp: "「閉じる」は close。" },
-                    { id: "o220", name: "シットダ", q: "座ってください。", words: ["down", "sit", "please"], correct: "sit down please", exp: "「座る」は sit down。" },
-                    { id: "o221", name: "スタンド", q: "立ってください。", words: ["up", "stand", "please"], correct: "stand up please", exp: "「立つ」は stand up。" },
+                    { id: "o220", name: "シットダ", q: "座ってください。", words: ["down", "sit", "please"], correct: "sit down please", acceptable: ["sit down please", "please sit down"], exp: "「座る」は sit down。" },
+                    { id: "o221", name: "スタンド", q: "立ってください。", words: ["up", "stand", "please"], correct: "stand up please", acceptable: ["stand up please", "please stand up"], exp: "「立つ」は stand up。" },
                     { id: "o222", name: "ドントイ", q: "食べてはいけません。", words: ["eat", "don't"], correct: "don't eat", exp: "禁止は Don't...。" },
                     { id: "o223", name: "フーズザ", q: "あれは誰ですか？", words: ["that", "who", "is"], correct: "who is that", exp: "「誰？」と聞くときは Who is...?" },
                     { id: "o224", name: "ウェアイ", q: "私のペンはどこ？", words: ["is", "where", "my pen"], correct: "where is my pen", exp: "「どこ？」と聞くときは Where is...?" },
@@ -1555,16 +1563,16 @@
                 [...q.words].sort(() => Math.random() - 0.5).forEach(word => {
                     const chip = document.createElement('div');
                     chip.className = "word-chip";
-                    chip.innerText = word;
+                    chip.innerText = (word === 'i') ? 'I' : word;
                     chip.onclick = () => addWord(word);
                     chipContainer.appendChild(chip);
                 });
-                ansArea.appendChild(chipContainer);
-
                 const clr = document.createElement('button');
-                clr.className = "absolute bottom-6 text-[10px] text-slate-500 underline";
+                clr.className = "w-full mt-4 py-2 text-sm text-slate-500 underline hover:text-slate-700 transition-colors";
                 clr.innerText = "やりなおす";
                 clr.onclick = resetOrder;
+
+                ansArea.appendChild(chipContainer);
                 ansArea.appendChild(clr);
 
             } else if (currentQuest.type.startsWith('listening')) {
@@ -1618,7 +1626,10 @@
                 if (showOnlyLabels) {
                     btn.innerHTML = `<span class="text-7xl font-black text-indigo-600 uppercase pointer-events-none">${labelLetter}</span>`;
                 } else {
-                    const text = labels ? labels[i] : choice;
+                    let text = labels ? labels[i] : choice;
+                    if (currentQuest && currentQuest.type === 'chat') {
+                        text = text.charAt(0).toUpperCase() + text.slice(1);
+                    }
                     btn.innerHTML = `
                             <span class="text-sm font-black text-slate-400 uppercase tracking-widest mb-1 sm:mb-3 pointer-events-none">${labelLetter}</span>
                             <span class="text-2xl sm:text-3xl font-black leading-tight text-slate-800 break-all pointer-events-none">${text}</span>
@@ -1706,7 +1717,7 @@
             selectedWords.forEach(w => {
                 const s = document.createElement('span');
                 s.className = "slot-word mx-1 text-xl";
-                s.innerText = w;
+                s.innerText = (w === 'i') ? 'I' : w;
                 container.appendChild(s);
             });
             if (selectedWords.length === 0) container.innerHTML = "<span class='text-slate-300 italic font-bold'>ならびかえてね...</span>";
@@ -1717,7 +1728,10 @@
             renderOrderSlots();
             if (selectedWords.length === currentQList[currentQIndex].words.length) {
                 const combined = selectedWords.join(' ');
-                checkAnswer(combined === currentQList[currentQIndex].correct);
+                const q = currentQList[currentQIndex];
+                const acceptable = q.acceptable || [q.correct];
+                const isCorrect = acceptable.some(alt => combined === alt);
+                checkAnswer(isCorrect);
             }
         }
 
